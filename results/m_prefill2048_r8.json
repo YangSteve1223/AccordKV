@@ -1,0 +1,12 @@
+{
+  "exp": "m_prefill2048_r8",
+  "model": "mistral",
+  "phase": "prefill",
+  "seq": 2048,
+  "rank": 8,
+  "elapsed_s": 2.0,
+  "k_max_abs": 16.80377197265625,
+  "k_rel_err": 0.8921132762040361,
+  "v_max_abs": 5.185879230499268,
+  "v_rel_err": 0.8836066110196851
+}

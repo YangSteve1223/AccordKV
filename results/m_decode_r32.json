@@ -1,0 +1,12 @@
+{
+  "exp": "m_decode_r32",
+  "model": "mistral",
+  "phase": "decode",
+  "seq": 128,
+  "rank": 32,
+  "elapsed_s": 3.4,
+  "k_max_abs": 9.637469291687012,
+  "k_rel_err": 0.8814698740442887,
+  "v_max_abs": 4.079660892486572,
+  "v_rel_err": 0.8283598769837518
+}

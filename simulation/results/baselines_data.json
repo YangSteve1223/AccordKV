@@ -1,0 +1,1031 @@
+{
+  "summary": {
+    "skewed": {
+      "4": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.026202049521416398,
+          "attn_error_mean_std": 0.0034379664848261608,
+          "attn_error_fro_avg": 4.324286911467106,
+          "v_error_mean_avg": 0.30261404315630597,
+          "v_error_fro_avg": 219.11592610677084,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.021555023935243403,
+          "attn_error_mean_std": 0.004759829237330179,
+          "attn_error_fro_avg": 3.069443474704606,
+          "v_error_mean_avg": 0.4122961461544037,
+          "v_error_fro_avg": 298.5342610677083,
+          "compression_ratio_avg": 4.773892773892774,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 0.03879998184442632,
+          "attn_error_mean_std": 0.0017905331354699321,
+          "attn_error_fro_avg": 5.610496449780931,
+          "v_error_mean_avg": 2.348222573598226,
+          "v_error_fro_avg": 1700.2941080729167,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 0.018665936410201284,
+          "attn_error_mean_std": 0.002492946224684168,
+          "attn_error_fro_avg": 2.1869848127418567,
+          "v_error_mean_avg": 0.5244647562503815,
+          "v_error_fro_avg": 379.75290934244794,
+          "compression_ratio_avg": 3.9844357976653697,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 0.03766968880506503,
+          "attn_error_mean_std": 0.0017807132748453116,
+          "attn_error_fro_avg": 5.464511262291516,
+          "v_error_mean_avg": 0.4763339062531789,
+          "v_error_fro_avg": 344.9025472005208,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.0029721688229014543,
+          "attn_error_mean_std": 6.104065617830327e-05,
+          "attn_error_fro_avg": 0.33745165062508525,
+          "v_error_mean_avg": 0.2320811152458191,
+          "v_error_fro_avg": 168.04464213053384,
+          "compression_ratio_avg": 3.3264174860919993,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.020977515749664912,
+          "attn_error_mean_std": 0.0028539766547883844,
+          "attn_error_fro_avg": 2.943991021036906,
+          "v_error_mean_avg": 0.40846002101898193,
+          "v_error_fro_avg": 295.75660196940106,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        }
+      },
+      "8": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.02973983944856165,
+          "attn_error_mean_std": 0.007294349572654065,
+          "attn_error_fro_avg": 5.150698122807266,
+          "v_error_mean_avg": 0.33093612392743427,
+          "v_error_fro_avg": 239.62328592936197,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.028899567312511348,
+          "attn_error_mean_std": 0.012536584076635963,
+          "attn_error_fro_avg": 4.306851989267515,
+          "v_error_mean_avg": 0.435774564743042,
+          "v_error_fro_avg": 315.53443400065106,
+          "compression_ratio_avg": 9.102222222222222,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 0.08492100797014888,
+          "attn_error_mean_std": 0.0037011980245266296,
+          "attn_error_fro_avg": 12.074370770813152,
+          "v_error_mean_avg": 2.5483097235361734,
+          "v_error_fro_avg": 1845.1725667317708,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 0.008107217526380975,
+          "attn_error_mean_std": 0.002421434359518833,
+          "attn_error_fro_avg": 1.4170801743516677,
+          "v_error_mean_avg": 0.2660132646560669,
+          "v_error_fro_avg": 192.6141560872396,
+          "compression_ratio_avg": 7.968871595330739,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 0.08244788977964086,
+          "attn_error_mean_std": 0.0037104949501159806,
+          "attn_error_fro_avg": 11.761273245093102,
+          "v_error_mean_avg": 0.6146692633628845,
+          "v_error_fro_avg": 445.0679931640625,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.0033497559657394934,
+          "attn_error_mean_std": 0.00020303941806710057,
+          "attn_error_fro_avg": 0.380210665226777,
+          "v_error_mean_avg": 0.26527852813402814,
+          "v_error_fro_avg": 192.0821278889974,
+          "compression_ratio_avg": 6.621377520522203,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.029365554016583455,
+          "attn_error_mean_std": 0.009722711419818678,
+          "attn_error_fro_avg": 4.31141689724365,
+          "v_error_mean_avg": 0.44662730892499286,
+          "v_error_fro_avg": 323.3926595052083,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        }
+      },
+      "16": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.030711618413712366,
+          "attn_error_mean_std": 0.0068001105734905405,
+          "attn_error_fro_avg": 4.592712116165529,
+          "v_error_mean_avg": 0.34209031860033673,
+          "v_error_fro_avg": 247.69977823893228,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.02085356336669325,
+          "attn_error_mean_std": 0.0007677899218610636,
+          "attn_error_fro_avg": 2.604515117917972,
+          "v_error_mean_avg": 0.4500936071077983,
+          "v_error_fro_avg": 325.9025370279948,
+          "compression_ratio_avg": 16.650406504065042,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 0.16649972934439844,
+          "attn_error_mean_std": 0.006412633663553623,
+          "attn_error_fro_avg": 22.8531881595359,
+          "v_error_mean_avg": 2.634446461995443,
+          "v_error_fro_avg": 1907.5420328776042,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 0.008800372231291605,
+          "attn_error_mean_std": 0.0027101868360854516,
+          "attn_error_fro_avg": 1.5015853764379845,
+          "v_error_mean_avg": 0.27818696697552997,
+          "v_error_fro_avg": 201.42883809407553,
+          "compression_ratio_avg": 15.937743190661479,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 0.1613950458678296,
+          "attn_error_mean_std": 0.0067706633993609485,
+          "attn_error_fro_avg": 22.26469648993064,
+          "v_error_mean_avg": 0.7691941857337952,
+          "v_error_fro_avg": 556.9559733072916,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.0034377684890722266,
+          "attn_error_mean_std": 8.074458985930478e-05,
+          "attn_error_fro_avg": 0.3944515782483351,
+          "v_error_mean_avg": 0.2827557524045308,
+          "v_error_fro_avg": 204.73699951171875,
+          "compression_ratio_avg": 13.11958073100726,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.03546744600518075,
+          "attn_error_mean_std": 0.014340854989329167,
+          "attn_error_fro_avg": 5.618066909724629,
+          "v_error_mean_avg": 0.9413889944553375,
+          "v_error_fro_avg": 681.6383056640625,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        }
+      },
+      "32": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.047281964845128366,
+          "attn_error_mean_std": 0.0293473010773961,
+          "attn_error_fro_avg": 8.801528964033926,
+          "v_error_mean_avg": 0.34644249081611633,
+          "v_error_fro_avg": 250.8510996500651,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.02651003088234195,
+          "attn_error_mean_std": 0.000801425838190092,
+          "attn_error_fro_avg": 3.143500588208253,
+          "v_error_mean_avg": 0.4565652906894684,
+          "v_error_fro_avg": 330.5885314941406,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 0.2989294067714355,
+          "attn_error_mean_std": 0.009984732703946871,
+          "attn_error_fro_avg": 39.18264848229614,
+          "v_error_mean_avg": 2.7354419231414795,
+          "v_error_fro_avg": 1980.6705729166667,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 0.0102141840668243,
+          "attn_error_mean_std": 0.002742399269949914,
+          "attn_error_fro_avg": 1.684143663783428,
+          "v_error_mean_avg": 0.28623465696970624,
+          "v_error_fro_avg": 207.25599670410156,
+          "compression_ratio_avg": 31.875486381322958,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 0.2911920647153672,
+          "attn_error_mean_std": 0.010232058260688955,
+          "attn_error_fro_avg": 38.30140699181149,
+          "v_error_mean_avg": 1.1426908572514851,
+          "v_error_fro_avg": 827.3961385091146,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.004210443584956302,
+          "attn_error_mean_std": 0.0006600124230080885,
+          "attn_error_fro_avg": 0.5118992904029352,
+          "v_error_mean_avg": 0.29463841517766315,
+          "v_error_fro_avg": 213.3409627278646,
+          "compression_ratio_avg": 25.89865203691684,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.02660801089318149,
+          "attn_error_mean_std": 0.0016025613186755262,
+          "attn_error_fro_avg": 3.152332107478594,
+          "v_error_mean_avg": 0.4663768907388051,
+          "v_error_fro_avg": 337.6928405761719,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        }
+      },
+      "64": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.036647300558868924,
+          "attn_error_mean_std": 0.0011077645941274755,
+          "attn_error_fro_avg": 4.153307233948682,
+          "v_error_mean_avg": 0.35046159227689105,
+          "v_error_fro_avg": 253.76122029622397,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.03349522391121711,
+          "attn_error_mean_std": 0.001894298795247587,
+          "attn_error_fro_avg": 3.857940399108127,
+          "v_error_mean_avg": 0.46488382418950397,
+          "v_error_fro_avg": 336.6117858886719,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 0.4938518575741342,
+          "attn_error_mean_std": 0.012972172341709779,
+          "attn_error_fro_avg": 61.67693612060979,
+          "v_error_mean_avg": 2.7795347372690835,
+          "v_error_fro_avg": 2012.59716796875,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 0.014155727222067286,
+          "attn_error_mean_std": 0.002218523132430591,
+          "attn_error_fro_avg": 2.0980328787881484,
+          "v_error_mean_avg": 0.29422998428344727,
+          "v_error_fro_avg": 213.04520670572916,
+          "compression_ratio_avg": 63.750972762645915,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 0.4842544943259077,
+          "attn_error_mean_std": 0.013322040702288512,
+          "attn_error_fro_avg": 60.56037571629665,
+          "v_error_mean_avg": 1.684600035349528,
+          "v_error_fro_avg": 1219.7798258463542,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.006470657208509964,
+          "attn_error_mean_std": 0.0012079884112886675,
+          "attn_error_fro_avg": 0.8766373450409164,
+          "v_error_mean_avg": 0.31044373909632367,
+          "v_error_fro_avg": 224.78522745768228,
+          "compression_ratio_avg": 51.57034207709381,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.03482947605765663,
+          "attn_error_mean_std": 0.003035737141131415,
+          "attn_error_fro_avg": 3.9704559824306984,
+          "v_error_mean_avg": 0.4696623384952545,
+          "v_error_fro_avg": 340.07179768880206,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        }
+      }
+    },
+    "clustered": {
+      "4": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.1532153302369327,
+          "attn_error_mean_std": 0.013075023226182234,
+          "attn_error_fro_avg": 17.931513136021767,
+          "v_error_mean_avg": 6.119706948598226,
+          "v_error_fro_avg": 4431.140787760417,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.2041483961277789,
+          "attn_error_mean_std": 0.02510969292371906,
+          "attn_error_fro_avg": 23.81526409027116,
+          "v_error_mean_avg": 8.415423711140951,
+          "v_error_fro_avg": 6093.416341145833,
+          "compression_ratio_avg": 4.773892773892774,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 0.9712755791209889,
+          "attn_error_mean_std": 0.0534240350789061,
+          "attn_error_fro_avg": 115.8236898473665,
+          "v_error_mean_avg": 8.657272020975748,
+          "v_error_fro_avg": 6268.53369140625,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 0.08546067259195404,
+          "attn_error_mean_std": 0.002667378288702782,
+          "attn_error_fro_avg": 9.950784326493181,
+          "v_error_mean_avg": 9.431671460469564,
+          "v_error_fro_avg": 6829.257649739583,
+          "compression_ratio_avg": 3.9844357976653697,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 2.76182288257413,
+          "attn_error_mean_std": 0.29299635646250655,
+          "attn_error_fro_avg": 320.8204815514161,
+          "v_error_mean_avg": 8.697215716044107,
+          "v_error_fro_avg": 6297.456380208333,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.015253879255637509,
+          "attn_error_mean_std": 5.498633399389041e-05,
+          "attn_error_fro_avg": 1.7359330911116018,
+          "v_error_mean_avg": 0.992650310198466,
+          "v_error_fro_avg": 718.7555135091146,
+          "compression_ratio_avg": 3.222490363907415,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.1771946882504327,
+          "attn_error_mean_std": 0.018655863047939227,
+          "attn_error_fro_avg": 20.681477943176276,
+          "v_error_mean_avg": 8.332611401875814,
+          "v_error_fro_avg": 6033.453776041667,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        }
+      },
+      "8": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.2002200677164043,
+          "attn_error_mean_std": 0.029058734358470742,
+          "attn_error_fro_avg": 23.44330834359108,
+          "v_error_mean_avg": 6.603331724802653,
+          "v_error_fro_avg": 4781.322265625,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.29969912298124524,
+          "attn_error_mean_std": 0.03082828163675856,
+          "attn_error_fro_avg": 34.86717745470022,
+          "v_error_mean_avg": 8.9149808883667,
+          "v_error_fro_avg": 6455.1337890625,
+          "compression_ratio_avg": 9.102222222222222,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 1.7509936104808943,
+          "attn_error_mean_std": 0.029171148201330262,
+          "attn_error_fro_avg": 205.9701540238533,
+          "v_error_mean_avg": 9.347833315531412,
+          "v_error_fro_avg": 6768.554036458333,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 1.4119746894126273,
+          "attn_error_mean_std": 0.09962710629889397,
+          "attn_error_fro_avg": 171.26132585607505,
+          "v_error_mean_avg": 1.4822237888971965,
+          "v_error_fro_avg": 1073.2445068359375,
+          "compression_ratio_avg": 7.968871595330739,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 3.3008880478091718,
+          "attn_error_mean_std": 0.4277448061279387,
+          "attn_error_fro_avg": 382.9035237032385,
+          "v_error_mean_avg": 9.367438952128092,
+          "v_error_fro_avg": 6782.749674479167,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.02125759127338692,
+          "attn_error_mean_std": 2.7696400002156286e-05,
+          "attn_error_fro_avg": 2.420138396398306,
+          "v_error_mean_avg": 1.3128465414047241,
+          "v_error_fro_avg": 950.6022135416666,
+          "compression_ratio_avg": 6.44498072781483,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.246080345298643,
+          "attn_error_mean_std": 0.012840437750203573,
+          "attn_error_fro_avg": 28.762503487859703,
+          "v_error_mean_avg": 9.108372370402018,
+          "v_error_fro_avg": 6595.164713541667,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        }
+      },
+      "16": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.4582291189810304,
+          "attn_error_mean_std": 0.15040274493635475,
+          "attn_error_fro_avg": 54.19178027723478,
+          "v_error_mean_avg": 6.840380986531575,
+          "v_error_fro_avg": 4952.9638671875,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.36913598263612046,
+          "attn_error_mean_std": 0.06992807180262224,
+          "attn_error_fro_avg": 43.326731972347794,
+          "v_error_mean_avg": 9.154716491699219,
+          "v_error_fro_avg": 6628.720540364583,
+          "compression_ratio_avg": 16.650406504065042,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 2.4759525918743743,
+          "attn_error_mean_std": 0.15200653914359263,
+          "attn_error_fro_avg": 289.20568111624556,
+          "v_error_mean_avg": 9.575434366861979,
+          "v_error_fro_avg": 6933.354166666667,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 1.4345499506765724,
+          "attn_error_mean_std": 0.12698243185053318,
+          "attn_error_fro_avg": 174.4392382299386,
+          "v_error_mean_avg": 1.5598124265670776,
+          "v_error_fro_avg": 1129.4246826171875,
+          "compression_ratio_avg": 15.937743190661479,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 3.6828038520036315,
+          "attn_error_mean_std": 0.6107824554723396,
+          "attn_error_fro_avg": 426.9232215905169,
+          "v_error_mean_avg": 9.647480010986328,
+          "v_error_fro_avg": 6985.520345052083,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.02534507381717187,
+          "attn_error_mean_std": 8.40606174973548e-05,
+          "attn_error_fro_avg": 2.8880284294899248,
+          "v_error_mean_avg": 1.5025626420974731,
+          "v_error_fro_avg": 1087.9713134765625,
+          "compression_ratio_avg": 12.88996145562966,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.30575199274870035,
+          "attn_error_mean_std": 0.03626398311168247,
+          "attn_error_fro_avg": 36.11246384611173,
+          "v_error_mean_avg": 9.224203745524088,
+          "v_error_fro_avg": 6679.03564453125,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        }
+      },
+      "32": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.4073611577871034,
+          "attn_error_mean_std": 0.106819236428932,
+          "attn_error_fro_avg": 47.16179806351729,
+          "v_error_mean_avg": 6.951018492380778,
+          "v_error_fro_avg": 5033.074381510417,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.4627552165478132,
+          "attn_error_mean_std": 0.012640020000556846,
+          "attn_error_fro_avg": 55.05482784555392,
+          "v_error_mean_avg": 9.380971908569336,
+          "v_error_fro_avg": 6792.547200520833,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 2.97871520138535,
+          "attn_error_mean_std": 0.1582370979319379,
+          "attn_error_fro_avg": 345.83942649309034,
+          "v_error_mean_avg": 9.904486020406088,
+          "v_error_fro_avg": 7171.612141927083,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 1.5688740580745513,
+          "attn_error_mean_std": 0.14655152352832176,
+          "attn_error_fro_avg": 190.53578177685088,
+          "v_error_mean_avg": 1.6076023976008098,
+          "v_error_fro_avg": 1164.0284016927083,
+          "compression_ratio_avg": 31.875486381322958,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 3.8761792681770557,
+          "attn_error_mean_std": 0.8364796861204041,
+          "attn_error_fro_avg": 447.20706997674296,
+          "v_error_mean_avg": 9.747909228006998,
+          "v_error_fro_avg": 7058.238606770833,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.02799580803507135,
+          "attn_error_mean_std": 7.362705504353703e-05,
+          "attn_error_fro_avg": 3.1843125844183646,
+          "v_error_mean_avg": 1.6098041534423828,
+          "v_error_fro_avg": 1165.6225992838542,
+          "compression_ratio_avg": 25.77992291125932,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.4289071426167646,
+          "attn_error_mean_std": 0.03564232631305491,
+          "attn_error_fro_avg": 51.63066437594532,
+          "v_error_mean_avg": 9.600398381551107,
+          "v_error_fro_avg": 6951.429850260417,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        }
+      },
+      "64": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.9225277104143869,
+          "attn_error_mean_std": 0.26427368300726406,
+          "attn_error_fro_avg": 108.72849440609662,
+          "v_error_mean_avg": 7.008281707763672,
+          "v_error_fro_avg": 5074.537434895833,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.6596565351570703,
+          "attn_error_mean_std": 0.09622084500515644,
+          "attn_error_fro_avg": 77.55015727757575,
+          "v_error_mean_avg": 9.522933006286621,
+          "v_error_fro_avg": 6895.337727864583,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 3.3347404265372997,
+          "attn_error_mean_std": 0.198645354357894,
+          "attn_error_fro_avg": 388.4113395479084,
+          "v_error_mean_avg": 9.951409022013346,
+          "v_error_fro_avg": 7205.588704427083,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 1.670745393364659,
+          "attn_error_mean_std": 0.0962287320718346,
+          "attn_error_fro_avg": 203.90697931377466,
+          "v_error_mean_avg": 1.643569032351176,
+          "v_error_fro_avg": 1190.0709635416667,
+          "compression_ratio_avg": 63.750972762645915,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 3.9638289023016005,
+          "attn_error_mean_std": 0.9128880604630362,
+          "attn_error_fro_avg": 458.2995894723361,
+          "v_error_mean_avg": 9.807065963745117,
+          "v_error_fro_avg": 7101.072916666667,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.029534624834538097,
+          "attn_error_mean_std": 0.00019070874809243857,
+          "attn_error_fro_avg": 3.355692195894085,
+          "v_error_mean_avg": 1.6683109203974407,
+          "v_error_fro_avg": 1207.9859212239583,
+          "compression_ratio_avg": 51.55984582251864,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.5826788789991264,
+          "attn_error_mean_std": 0.04355665839312305,
+          "attn_error_fro_avg": 68.779125553688,
+          "v_error_mean_avg": 9.2376127243042,
+          "v_error_fro_avg": 6688.74462890625,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        }
+      }
+    },
+    "random": {
+      "4": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.02493388485310653,
+          "attn_error_mean_std": 0.0015968549279635619,
+          "attn_error_fro_avg": 2.794390030944722,
+          "v_error_mean_avg": 0.8662373622258505,
+          "v_error_fro_avg": 627.2228190104166,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.02816845606138803,
+          "attn_error_mean_std": 0.0008232328656773604,
+          "attn_error_fro_avg": 3.2166364723186835,
+          "v_error_mean_avg": 1.262280027071635,
+          "v_error_fro_avg": 913.98828125,
+          "compression_ratio_avg": 4.773892773892774,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 0.025428675844277646,
+          "attn_error_mean_std": 0.0009987108739409514,
+          "attn_error_fro_avg": 2.889214065738854,
+          "v_error_mean_avg": 1.3005111614863079,
+          "v_error_fro_avg": 941.6705729166666,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 0.04420614451030816,
+          "attn_error_mean_std": 0.00472285769095947,
+          "attn_error_fro_avg": 5.078829792846778,
+          "v_error_mean_avg": 1.4144353071848552,
+          "v_error_fro_avg": 1024.160380045573,
+          "compression_ratio_avg": 3.9844357976653697,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 0.023226247663999815,
+          "attn_error_mean_std": 0.00018357352613185073,
+          "attn_error_fro_avg": 2.6206872559233085,
+          "v_error_mean_avg": 1.2263973156611125,
+          "v_error_fro_avg": 888.0064697265625,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.010980433446496575,
+          "attn_error_mean_std": 0.000300580073661469,
+          "attn_error_fro_avg": 1.2440889512042668,
+          "v_error_mean_avg": 0.7569247682889303,
+          "v_error_fro_avg": 548.0719807942709,
+          "compression_ratio_avg": 3.1950078003120126,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.024440992388328104,
+          "attn_error_mean_std": 0.0011552605985420401,
+          "attn_error_fro_avg": 2.771802815652444,
+          "v_error_mean_avg": 1.213003436724345,
+          "v_error_fro_avg": 878.3082275390625,
+          "compression_ratio_avg": 4.0,
+          "n_runs": 3
+        }
+      },
+      "8": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.03644168025763919,
+          "attn_error_mean_std": 0.0021379017119240373,
+          "attn_error_fro_avg": 4.170475919980672,
+          "v_error_mean_avg": 0.9354762236277262,
+          "v_error_fro_avg": 677.3570556640625,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.0422308124819988,
+          "attn_error_mean_std": 0.002326767315954147,
+          "attn_error_fro_avg": 4.805269129416412,
+          "v_error_mean_avg": 1.3388463258743286,
+          "v_error_fro_avg": 969.4281616210938,
+          "compression_ratio_avg": 9.102222222222222,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 0.03779624279792401,
+          "attn_error_mean_std": 0.0005644359923291746,
+          "attn_error_fro_avg": 4.290884586274666,
+          "v_error_mean_avg": 1.3876053094863892,
+          "v_error_fro_avg": 1004.7334391276041,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 0.01083726583581277,
+          "attn_error_mean_std": 0.0002787678949308775,
+          "attn_error_fro_avg": 1.241613282294038,
+          "v_error_mean_avg": 0.8848302165667216,
+          "v_error_fro_avg": 640.6854654947916,
+          "compression_ratio_avg": 7.968871595330739,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 0.038197746582093184,
+          "attn_error_mean_std": 0.0021261998016771214,
+          "attn_error_fro_avg": 4.314409777833244,
+          "v_error_mean_avg": 1.324240803718567,
+          "v_error_fro_avg": 958.8526204427084,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.011926058044983284,
+          "attn_error_mean_std": 0.00029820714480264176,
+          "attn_error_fro_avg": 1.3631204399990262,
+          "v_error_mean_avg": 0.8731335600217184,
+          "v_error_fro_avg": 632.2161661783854,
+          "compression_ratio_avg": 6.390015600624025,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.0383788195411344,
+          "attn_error_mean_std": 0.0017749007099250279,
+          "attn_error_fro_avg": 4.347138140944449,
+          "v_error_mean_avg": 1.3315385580062866,
+          "v_error_fro_avg": 964.1367594401041,
+          "compression_ratio_avg": 8.0,
+          "n_runs": 3
+        }
+      },
+      "16": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.05442676402920956,
+          "attn_error_mean_std": 0.0014356252180676404,
+          "attn_error_fro_avg": 6.264402771134667,
+          "v_error_mean_avg": 0.9683944582939148,
+          "v_error_fro_avg": 701.1924031575521,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.05842530331893702,
+          "attn_error_mean_std": 0.0019121356834923549,
+          "attn_error_fro_avg": 6.65065133061762,
+          "v_error_mean_avg": 1.3760431210199993,
+          "v_error_fro_avg": 996.3614705403646,
+          "compression_ratio_avg": 16.650406504065042,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 0.05627345091623533,
+          "attn_error_mean_std": 0.002023719972075056,
+          "attn_error_fro_avg": 6.4906043258067285,
+          "v_error_mean_avg": 1.459969202677409,
+          "v_error_fro_avg": 1057.1304931640625,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 0.010795804341225387,
+          "attn_error_mean_std": 0.0005527540071419067,
+          "attn_error_fro_avg": 1.241084920943014,
+          "v_error_mean_avg": 0.925721804300944,
+          "v_error_fro_avg": 670.2940877278646,
+          "compression_ratio_avg": 15.937743190661479,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 0.05560392624667734,
+          "attn_error_mean_std": 0.0024296940163118894,
+          "attn_error_fro_avg": 6.211998106710322,
+          "v_error_mean_avg": 1.3702238003412883,
+          "v_error_fro_avg": 992.1478068033854,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.012608138013430274,
+          "attn_error_mean_std": 0.00035965509435871844,
+          "attn_error_fro_avg": 1.4331825939011775,
+          "v_error_mean_avg": 0.9344893495241801,
+          "v_error_fro_avg": 676.6424763997396,
+          "compression_ratio_avg": 12.78003120124805,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.05410162082852316,
+          "attn_error_mean_std": 0.0016171714659781503,
+          "attn_error_fro_avg": 6.189240993179285,
+          "v_error_mean_avg": 1.3601382573445637,
+          "v_error_fro_avg": 984.8451334635416,
+          "compression_ratio_avg": 16.0,
+          "n_runs": 3
+        }
+      },
+      "32": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.07670844156191958,
+          "attn_error_mean_std": 0.0013649451932901523,
+          "attn_error_fro_avg": 8.751362456977093,
+          "v_error_mean_avg": 0.9846314986546835,
+          "v_error_fro_avg": 712.9493001302084,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.08031391441653075,
+          "attn_error_mean_std": 0.0019301412890203444,
+          "attn_error_fro_avg": 9.099640194845248,
+          "v_error_mean_avg": 1.3903091351191204,
+          "v_error_fro_avg": 1006.6913045247396,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 0.08010356750716692,
+          "attn_error_mean_std": 0.003516584965224409,
+          "attn_error_fro_avg": 9.15912453016733,
+          "v_error_mean_avg": 1.4985522826512654,
+          "v_error_fro_avg": 1085.0675862630208,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 0.010167538367533894,
+          "attn_error_mean_std": 0.00010157714545140867,
+          "attn_error_fro_avg": 1.1643792375464992,
+          "v_error_mean_avg": 0.948621928691864,
+          "v_error_fro_avg": 686.8755493164062,
+          "compression_ratio_avg": 31.875486381322958,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 0.08222340287839545,
+          "attn_error_mean_std": 0.0038618386491749983,
+          "attn_error_fro_avg": 9.317595445848696,
+          "v_error_mean_avg": 1.3934592803319295,
+          "v_error_fro_avg": 1008.9721272786459,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.013217324002691272,
+          "attn_error_mean_std": 0.00017984905934979043,
+          "attn_error_fro_avg": 1.501467378246626,
+          "v_error_mean_avg": 0.9665597279866537,
+          "v_error_fro_avg": 699.8638305664062,
+          "compression_ratio_avg": 25.5600624024961,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.07805667808708289,
+          "attn_error_mean_std": 0.004415098988308066,
+          "attn_error_fro_avg": 8.899022557629038,
+          "v_error_mean_avg": 1.3760463396708171,
+          "v_error_fro_avg": 996.3638712565104,
+          "compression_ratio_avg": 32.0,
+          "n_runs": 3
+        }
+      },
+      "64": {
+        "AnyTime": {
+          "attn_error_mean_avg": 0.11631610931115481,
+          "attn_error_mean_std": 0.0028804028146960352,
+          "attn_error_fro_avg": 13.340738817779348,
+          "v_error_mean_avg": 0.992358128229777,
+          "v_error_fro_avg": 718.5439656575521,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "FastGen": {
+          "attn_error_mean_avg": 0.11703548173621103,
+          "attn_error_mean_std": 0.002244224210619195,
+          "attn_error_fro_avg": 13.106785987550845,
+          "v_error_mean_avg": 1.4216574827829997,
+          "v_error_fro_avg": 1029.3898111979167,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "Scissorhands": {
+          "attn_error_mean_avg": 0.11694004704811527,
+          "attn_error_mean_std": 0.005531171697625568,
+          "attn_error_fro_avg": 13.266002826186863,
+          "v_error_mean_avg": 1.467195987701416,
+          "v_error_fro_avg": 1062.3631591796875,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "Coreset": {
+          "attn_error_mean_avg": 0.009425151722981834,
+          "attn_error_mean_std": 0.000317389764652092,
+          "attn_error_fro_avg": 1.0792009530309887,
+          "v_error_mean_avg": 0.962892750898997,
+          "v_error_fro_avg": 697.2087809244791,
+          "compression_ratio_avg": 63.750972762645915,
+          "n_runs": 3
+        },
+        "H2O": {
+          "attn_error_mean_avg": 0.11372345119825382,
+          "attn_error_mean_std": 0.007329124982433042,
+          "attn_error_fro_avg": 12.972097322459506,
+          "v_error_mean_avg": 1.4061161677042644,
+          "v_error_fro_avg": 1018.1367390950521,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        },
+        "Method_D": {
+          "attn_error_mean_avg": 0.01346079633955372,
+          "attn_error_mean_std": 0.0002325305327962898,
+          "attn_error_fro_avg": 1.531916057758701,
+          "v_error_mean_avg": 0.9830518762270609,
+          "v_error_fro_avg": 711.8053792317709,
+          "compression_ratio_avg": 51.1201248049922,
+          "n_runs": 3
+        },
+        "StreamingLLM": {
+          "attn_error_mean_avg": 0.11355436145203558,
+          "attn_error_mean_std": 0.0054953693232967695,
+          "attn_error_fro_avg": 12.865646998233586,
+          "v_error_mean_avg": 1.4163768291473389,
+          "v_error_fro_avg": 1025.5661214192708,
+          "compression_ratio_avg": 64.0,
+          "n_runs": 3
+        }
+      }
+    }
+  },
+  "config": {
+    "kv_len": 4096,
+    "d": 128,
+    "q_len": 64,
+    "n_clusters": 8,
+    "compression_ratios": [
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "seeds": [
+      42,
+      123,
+      456
+    ]
+  },
+  "distributions": [
+    "random",
+    "skewed",
+    "clustered"
+  ],
+  "compression_ratios": [
+    4,
+    8,
+    16,
+    32,
+    64
+  ],
+  "seeds": [
+    42,
+    123,
+    456
+  ],
+  "baselines": [
+    "H2O",
+    "StreamingLLM",
+    "Scissorhands",
+    "FastGen",
+    "Method_D",
+    "Coreset",
+    "AnyTime"
+  ],
+  "total_elapsed_seconds": 100.32130026817322,
+  "configs_per_second": 3.1399114560712413
+}

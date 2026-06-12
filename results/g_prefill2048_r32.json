@@ -1,0 +1,12 @@
+{
+  "exp": "g_prefill2048_r32",
+  "model": "gemma",
+  "phase": "prefill",
+  "seq": 2048,
+  "rank": 32,
+  "elapsed_s": 5.0,
+  "k_max_abs": 11.554055213928223,
+  "k_rel_err": 0.8698635864508234,
+  "v_max_abs": 9.33857250213623,
+  "v_rel_err": 0.8888631366925197
+}

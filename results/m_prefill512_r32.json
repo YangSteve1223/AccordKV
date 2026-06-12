@@ -1,0 +1,12 @@
+{
+  "exp": "m_prefill512_r32",
+  "model": "mistral",
+  "phase": "prefill",
+  "seq": 512,
+  "rank": 32,
+  "elapsed_s": 1.8,
+  "k_max_abs": 11.269100189208984,
+  "k_rel_err": 0.8812369042754228,
+  "v_max_abs": 4.496309757232666,
+  "v_rel_err": 0.8412355334109212
+}

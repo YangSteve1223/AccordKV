@@ -1,0 +1,13 @@
+{
+  "sc1_H2O": true,
+  "sc1_StreamingLLM": true,
+  "sc1_Scissorhands": true,
+  "sc1_FastGen": true,
+  "sc1_Method_D": true,
+  "sc1_Coreset": true,
+  "sc1_AnyTime": true,
+  "sc2_errors_reasonable": true,
+  "sc3_streaming_structure": true,
+  "sc4_h2o_selection": true,
+  "all_pass": true
+}

@@ -1,0 +1,164 @@
+{
+  "audit_metadata": {
+    "scope": "/simulation/ 下所有 .py 文件",
+    "timestamp": "2024-XX-XX",
+    "standard": "宁可误报，不要漏报"
+  },
+  "summary": {
+    "total_issues": 10,
+    "critical": 5,
+    "major": 3,
+    "minor": 2
+  },
+  "critical": [
+    {
+      "id": "P0-1",
+      "title": "所有 Backend 都是 numpy 模拟，无真实 GPU 实现",
+      "files": [
+        "simulation/backends/flash_attn.py",
+        "simulation/backends/vllm.py",
+        "simulation/backends/hpc_ops.py",
+        "simulation/backends/triton.py"
+      ],
+      "lines": "所有文件",
+      "description": "所有 4 个 backend 的 NOTE 都说'真实环境需要 torch/flash_attn/vllm'，但实际代码只有 numpy 模拟。用户期望 GPU 加速，实际运行 CPU numpy 代码。",
+      "impact": "用户误以为 GPU 加速，实际是 CPU 模拟；性能完全不符合预期；浪费 GPU 资源",
+      "fix": "方案1: 添加 GPU 检测，在 GPU 环境下强制使用真实实现；方案2: 添加 is_mock 属性，明确标识模拟实现；方案3: 实现真实 GPU backend"
+    },
+    {
+      "id": "P0-2",
+      "title": "vLLM Backend 使用私有 API (vllm._C)",
+      "files": ["simulation/backends/vllm.py"],
+      "lines": "第 8 行",
+      "description": "from vllm._C import paged_attention 使用了私有 API，vLLM 版本升级后可能直接 fail",
+      "impact": "vLLM 0.2.x → 0.3.x → 0.4.x API 变化很大，私有 API 不保证稳定性",
+      "fix": "使用 vLLM 公共 API: from vllm.workers import PagedAttention，或添加版本检测和兼容层"
+    },
+    {
+      "id": "P0-3",
+      "title": "device 硬编码 'cuda'，无 GPU fallback",
+      "files": ["simulation/lmcache_connector.py"],
+      "lines": "第 268 行 local_device: str = 'cuda'",
+      "description": "LMCacheACCORDConnector.__init__ 中 local_device 参数硬编码为 'cuda'",
+      "impact": "在 CPU-only 环境下会直接失败，没有优雅的 fallback",
+      "fix": "添加 torch.cuda.is_available() 检测，无 GPU 时 fallback 到 'cpu'"
+    },
+    {
+      "id": "P0-4",
+      "title": "transformers DynamicCache API 不兼容",
+      "files": ["simulation/accord_backend.py"],
+      "lines": "如涉及 KV cache 提取的代码",
+      "description": "主人使用 Transformers 5.9.0，kv.layers[i].keys 不是 tuple，必须用 .to_tuple()",
+      "impact": "如果代码直接访问 kv.layers[i].keys，在 Transformers 5.9.0 上会 fail",
+      "fix": "添加兼容层: if hasattr(cache, 'to_tuple'): keys, values = cache.to_tuple() else: keys, values = cache.keys, cache.values"
+    },
+    {
+      "id": "P0-5",
+      "title": "Qwen 模型未设置强制 eager attention",
+      "files": ["simulation/backends/ (GPU 实现时)"],
+      "lines": "模型加载代码",
+      "description": "Qwen 系列使用 vLLM backend 时，未设置 attn_implementation='eager' 会导致静默失败",
+      "impact": "推理结果可能错误，且难以调试（静默失败）",
+      "fix": "加载 Qwen 模型时设置: AutoModelForCausalLM.from_pretrained(..., attn_implementation='eager')"
+    }
+  ],
+  "major": [
+    {
+      "id": "P1-1",
+      "title": "dtype 不一致 (FP32/FP16 混合)",
+      "files": ["simulation/backends/flash_attn.py"],
+      "lines": "encode_kv, attention, decode_kv",
+      "description": "encode_kv 转 FP32 存储，attention 返回 FP16，decode_kv 转回原始 dtype，精度损失",
+      "impact": "可能导致数值精度问题",
+      "fix": "统一使用 TARGET_DTYPE = np.float16 或 np.float32"
+    },
+    {
+      "id": "P1-2",
+      "title": "推理时缺少 torch.no_grad()",
+      "files": ["simulation/backends/ (GPU 实现时)"],
+      "lines": "forward/attention 方法",
+      "description": "推理代码未使用 torch.no_grad() 包裹",
+      "impact": "显存浪费 ~20-30%，推理速度变慢",
+      "fix": "在推理入口添加 with torch.no_grad():"
+    },
+    {
+      "id": "P1-3",
+      "title": "Mistral SWA 上限 4096 硬编码",
+      "files": ["simulation/backends/ (涉及 Mistral 时)"],
+      "lines": "max_position_embeddings 配置",
+      "description": "Mistral 滑动窗口注意力上限 4096 tokens，超过不报错但行为未定义",
+      "impact": "超过 4096 tokens 时静默错误",
+      "fix": "添加显式检查: if seq_len > 4096: raise ValueError(...)"
+    }
+  ],
+  "minor": [
+    {
+      "id": "P2-1",
+      "title": "Gemma-2-9B 交替注意力未处理",
+      "files": ["simulation/backends/ (涉及 Gemma-2 时)"],
+      "lines": "attention 实现",
+      "description": "Gemma-2-9B 使用局部+全局交替注意力，标准 attention 实现不兼容",
+      "impact": "Gemma-2-9B 生成结果错误",
+      "fix": "添加模型检测和特殊 attention 处理分支"
+    },
+    {
+      "id": "P2-2",
+      "title": "缺少 CUDA 可用性检测",
+      "files": ["simulation/accord_backend.py"],
+      "lines": "BackendFactory.create 调用处",
+      "description": "GPU backend 代码没有 torch.cuda.is_available() 检测",
+      "impact": "在无 GPU 环境下直接失败",
+      "fix": "在创建 backend 前检测 CUDA 可用性，必要时 fallback"
+    }
+  ],
+  "verified_ok": [
+    {
+      "file": "simulation/remote_executor_v2.py",
+      "conclusion": "无问题",
+      "note": "纯 numpy 模拟，无 torch 依赖"
+    },
+    {
+      "file": "simulation/lmcache_connector.py",
+      "conclusion": "基本 OK",
+      "note": "仅 device 硬编码需修 (P0-3)"
+    },
+    {
+      "file": "simulation/backend_demo.py",
+      "conclusion": "无问题",
+      "note": "调用现有 backend，无直接 torch"
+    },
+    {
+      "file": "simulation/policy_v2.py",
+      "conclusion": "无问题",
+      "note": "纯 numpy 决策逻辑"
+    },
+    {
+      "file": "simulation/accord_backend.py",
+      "conclusion": "基本 OK",
+      "note": "抽象层定义，无实际实现"
+    },
+    {
+      "file": "simulation/exp1_fidelity_vs_bandwidth.py",
+      "conclusion": "无问题",
+      "note": "纯 numpy，NOTE 中的 torch 是注释"
+    }
+  ],
+  "checklist": {
+    "must_confirm": [
+      "GPU 环境检查: python -c 'import torch; print(torch.cuda.is_available())'",
+      "依赖安装: torch, flash_attn, vllm, transformers>=5.0",
+      "Backend 选择: FlashAttention2/vLLM/HPC-Ops/Triton + 对应依赖",
+      "Qwen 模型: attn_implementation='eager'",
+      "transformers 版本 >= 5.0: DynamicCache API 兼容"
+    ],
+    "recommended": [
+      "dtype 一致性: 统一 FP16 或 FP32",
+      "显存检查: nvidia-smi",
+      "梯度追踪: torch.no_grad()"
+    ],
+    "code_changes": [
+      "device fallback: lmcache_connector.py",
+      "mock 检测: 添加 is_mock 属性"
+    ]
+  }
+}

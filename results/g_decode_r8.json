@@ -1,0 +1,12 @@
+{
+  "exp": "g_decode_r8",
+  "model": "gemma",
+  "phase": "decode",
+  "seq": 128,
+  "rank": 8,
+  "elapsed_s": 5.4,
+  "k_max_abs": 11.306591033935547,
+  "k_rel_err": 0.8856175499917861,
+  "v_max_abs": 6.861510276794434,
+  "v_rel_err": 0.9188179518373668
+}
