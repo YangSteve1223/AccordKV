@@ -786,3 +786,101 @@ print(f"达到 90% 累积方差需要 rank={rank}, 实际 var={var:.4f}")
 ---
 
 > **结束语**：ACCORD-KV 最有价值的东西不是"合约"这个框架，而是 **Value Bottleneck 这个发现**。如果你是面试官或者论文审稿人，问你"这篇工作最重要的 insight 是什么"，你应该能简洁地说出来："KV 压缩中 Key 和 Value 的信息结构不对称——K 高度冗余（rank=8 就能保留 94%），V 很分散（rank=8 只保留 60%）。这意味着对 K 可以激进压缩，对 V 必须温和处理。这是一个之前被忽视的设计空间。" 理解到这一层，就真正学懂了 ACCORD-KV。
+
+## 第7章 基线方法对比
+
+本章详细介绍 ACCORD-KV 的对比基线方法，包括 StreamingLLM、H2O、SnapKV、PyramidKV、KIVI、KVQuant 等。每种方法给出：一句话定义、核心思想、优缺点、与 ACCORD-KV 的关键差异。
+
+### 7.1 StreamingLLM：Attention Sink + 滑动窗口
+
+**一句话定义**：通过保留"attention sink tokens"（高注意力得分的固定 token）加上滑动窗口，实现无限长度生成。
+
+**核心思想**：
+- 发现 Transformer 注意力会形成少数"吸收"大部分注意力分数的 token（sink tokens）
+- 保留初始4个 sink tokens + 最近 $W$ 个 token
+- 超出窗口的旧 token 直接丢弃
+
+**优点**：
+- 实现简单，无需额外计算
+- 天然支持流式推理
+
+**缺点**：
+- 窗口大小 $W$ 需要手动设定
+- 对需要全局信息的长程依赖效果差
+
+**与 ACCORD-KV 的关键差异**：StreamingLLM 是"丢弃"，ACCORD-KV 是"压缩保留"。ACCORD-KV 的 SVD 压缩保留了全局低秩结构，而 StreamingLLM 完全丢弃了超出窗口的信息。
+
+### 7.2 H2O：Heavy-Hitter Oracle
+
+**一句话定义**：基于"重击词（Heavy Hitter）"选择策略，只保留对 attention 分数贡献最大的 token，丢弃其余。
+
+**核心思想**：
+- 动态计算每个 token 的累积注意力分数（从最后一个 layer 反向累加）
+- 选择累积分数最高的 H% 个 token 作为"Heavy Hitter"
+- 丢弃其余 token，在推理时用稀疏 attention 近似全 attention
+
+**优点**：
+- 无需训练或微调
+- 在长序列上能有效降低内存
+
+**缺点**：
+- Heavy Hitter 的判定依赖启发式（累积分数），可能选错
+- 丢弃仍是不可逆的，信息损失不可恢复
+- 对某些需要细粒度语义的任务（如检索），误选影响大
+
+**与 ACCORD-KV 的关键差异**：H2O 是"选择丢弃"，ACCORD-KV 是"压缩保留"。H2O 对所有选中的 token 保持完整 FP16，ACCORD-KV 对所有 token 都压缩（但保留更多全局结构）。ACCORD-KV 的压缩粒度是 per-head 的，H2O 是全局 token 级。
+
+### 7.3 SnapKV / PyramidKV：重要性感知选择
+
+**一句话定义**：SnapKV 通过观测窗口投票选出最重要 token，PyramidKV 则按层级逐步汇聚注意力，实现层自适应的高效选择。
+
+**核心思想**：
+- **SnapKV**：用一个小窗口观测每个位置在不同 layer 的 attention 模式，投票选出最重要 token。该方法不依赖训练，能识别跨层的注意力热点。
+- **PyramidKV**：观察到浅层的 attention pattern 可以预测深层的 attention pattern，因此按层级逐步压缩——浅层保留更多 token，深层只保留预测出的关键 token。
+
+**优点**：
+- 无需微调或训练
+- PyramidKV 有一定的理论动机（浅层预测深层）
+
+**缺点**：
+- 仍然是有损选择，不是无损压缩
+- SnapKV 的投票窗口需要额外计算 overhead
+- PyramidKV 在不同任务/模型上需要重新校准汇聚参数
+
+**与 ACCORD-KV 的关键差异**：SnapKV/PyramidKV 是"按重要性选 token"，ACCORD-KV 是"每个 token 都压缩"。选 token 的策略天然无法保留语义上不显著但结构上重要的信息（如长程共指关系）；ACCORD-KV 通过 SVD 保留了所有 token 的低秩投影，信息损失更小。
+
+### 7.4 KIVI / KVQuant：量化基线
+
+**一句话定义**：KIVI 和 KVQuant 是两大 KV 量化基线，分别通过 channel-wise K 感知和混合精度非均匀量化实现 KV 压缩。
+
+**核心思想**：
+- **KIVI（Per-channel K 量化）**：
+  - 发现 Key 矩阵的某些 channel（维度）是离散的（int-like），某些是连续的（float-like）
+  - 对 Key 用 per-channel 量化（按 channel 分配不同 scale），对 Value 用 per-token 量化
+  - 这利用了 K 的分布特性来设计更高效的量化方案
+- **KVQuant（混合精度非均匀量化）**：
+  - 对不同 head、不同的 token 位置分配不同比特数
+  - 关键 token（高 attention weight）用更多比特，次要 token 用更少比特
+  - 使用非均匀量化（如非对称量化）而非简单的均匀 INT4
+
+**优点**：
+- KIVI：不需要训练，方法简单，对 K 压缩效果好
+- KVQuant：精度高（相对均匀量化），能处理异构的 KV 分布
+
+**缺点**：
+- KIVI：对 Value 效果差（per-channel 不适合 V），且实现需要特殊处理
+- KVQuant：实现复杂，需要大量调参（每个 head 的量化参数），在真实系统中部署成本高
+
+**与 ACCORD-KV 的关键差异**：KIVI/KVQuant 是在"每个 token 保持完整维度"的前提下做量化压缩；ACCORD-KV 是在"压缩维度"（SVD rank）之后再量化，两者是互补的维度。ACCORD-KV 可以看作 KIVI/KVQuant 的"上游"——先用 SVD 降维，再用量化进一步压缩，实现更大的压缩比。
+
+### 7.5 基线对比总表
+
+| 方法 | 类别 | 核心思想 | 压缩粒度 | 优点 | 缺点 |
+|------|------|---------|---------|------|------|
+| StreamingLLM | 选择 | Attention Sink | Token级 | 简单 | 丢失全局信息 |
+| H2O | 选择 | Heavy Hitter | Token级 | 无需训练 | 启发式，有损 |
+| SnapKV | 选择 | 观测窗口投票 | Block级 | 无需训练 | 仍会丢弃 |
+| PyramidKV | 选择 | 层级汇聚 | 层自适应 | 有理论动机 | 参数量大 |
+| KIVI | 量化 | Per-channel K | Channel级 | 支持长上下文 | 对V效果差 |
+| KVQuant | 量化 | 非均匀量化 | Token级 | 精度高 | 实现复杂 |
+| **ACCORD-KV** | **混合** | **Coreset+SVD+INT4** | **Per-head** | **50.8×压缩** | **需离线分析** |
