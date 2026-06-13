@@ -1,0 +1,258 @@
+{
+  "review_metadata": {
+    "review_date": "2026-06-12",
+    "reviewer": "Independent Code Reviewer (Third-Party Audit)",
+    "project": "ACCORD-KV (MLSys 2027 Target)",
+    "total_issues": 14,
+    "critical_count": 0,
+    "major_count": 2,
+    "minor_count": 12
+  },
+  "findings": [
+    {
+      "id": "A1-001",
+      "severity": "MINOR",
+      "module": "A1: method_d_proof.py",
+      "file": "simulation/method_d_proof.py",
+      "line": 108,
+      "issue": "Inconsistent seed offset",
+      "description": "generate_cluster_v uses seed+c+1000 in proof but seed+c in theory",
+      "code_snippet": "V_c = generate_cluster_v(..., seed + c + 1000, ...)",
+      "impact": "Low - both are valid random generation strategies",
+      "recommendation": "Consider documenting the seed offset rationale"
+    },
+    {
+      "id": "A1-002",
+      "severity": "MINOR",
+      "module": "A1: method_d_proof.py",
+      "file": "simulation/method_d_proof.py",
+      "line": 176,
+      "issue": "Potential array bounds issue",
+      "description": "r_actual = min(r, len(s)) but s[r_actual:] could still be out of bounds if r_actual equals len(s)",
+      "code_snippet": "recon_error = np.sqrt(np.sum(s[r_actual:] ** 2)) if r_actual < len(s) else 0.0",
+      "impact": "Low - the conditional protects against this, but logic is redundant",
+      "recommendation": "Simplify: just use s[r_actual:] with bounds check"
+    },
+    {
+      "id": "A1-003",
+      "severity": "MINOR",
+      "module": "A1: method_d_theory.py",
+      "file": "simulation/method_d_theory.py",
+      "line": 186,
+      "issue": "Vt_c shape potential mismatch",
+      "description": "V_c_approx uses Vt_c[:r_c, :] but Vt_c shape is (d, n_c), so Vt_c[:r_c, :] may have insufficient rows",
+      "code_snippet": "V_c_approx = U_c[:, :r_c] @ np.diag(s_c[:r_c]) @ Vt_c[:r_c, :]",
+      "impact": "Low - r_c is min(r, len(s_c)) and Vt_c has d rows >= len(s_c)",
+      "recommendation": "Add explicit shape validation"
+    },
+    {
+      "id": "A2-001",
+      "severity": "MAJOR",
+      "module": "A2: anytime_theory.py",
+      "file": "simulation/anytime_theory.py",
+      "line": "50-60, 285",
+      "issue": "Alpha parameter mismatch",
+      "description": "compression_error() uses alpha=0.6, but evaluate_cascade() uses alpha=1.0. The theoretical marginal utility analysis doesn't match empirical evaluation.",
+      "code_snippet": "# compression_error uses: alpha = 0.6\n# evaluate_cascade uses: alpha = 1.0",
+      "impact": "MEDIUM - 'optimal' schedule computed with alpha=0.6 evaluated with alpha=1.0",
+      "recommendation": "Use consistent alpha parameter throughout the module"
+    },
+    {
+      "id": "A2-002",
+      "severity": "MINOR",
+      "module": "A2: anytime_theory.py",
+      "file": "simulation/anytime_theory.py",
+      "line": 320,
+      "issue": "Magic number without documentation",
+      "description": "scale = 0.5 for MAE mapping is hardcoded without explanation",
+      "code_snippet": "scale = 0.5  # Calibrates the error model to realistic values",
+      "impact": "Low - the comment partially explains it, but value choice is arbitrary",
+      "recommendation": "Document how 0.5 was chosen or make it configurable"
+    },
+    {
+      "id": "A2-003",
+      "severity": "MINOR",
+      "module": "A2: anytime_theory.py",
+      "file": "simulation/anytime_theory.py",
+      "line": 339,
+      "issue": "MAE capped at 1.0",
+      "description": "mae = min(mae, 1.0) could mask compression failures",
+      "code_snippet": "mae = min(mae, 1.0)  # Cap at reasonable maximum",
+      "impact": "Low - this is a reasonable safety bound",
+      "recommendation": "Log warning when MAE hits cap"
+    },
+    {
+      "id": "B1-001",
+      "severity": "MINOR",
+      "module": "B1: method_d_ablation.py",
+      "file": "simulation/method_d_ablation.py",
+      "line": 89,
+      "issue": "Undocumented transformation matrix",
+      "description": "W_v = gen.standard_normal((d, d)) * 0.3 is an arbitrary V = K @ W_v transformation",
+      "code_snippet": "W_v = gen.standard_normal((d, d)) * 0.3\nV = K @ W_v + noise",
+      "impact": "Low - this is a reasonable synthetic V generation strategy",
+      "recommendation": "Document why V is derived from K this way"
+    },
+    {
+      "id": "B1-002",
+      "severity": "MINOR",
+      "module": "B1: method_d_ablation.py",
+      "file": "simulation/method_d_ablation.py",
+      "line": 145,
+      "issue": "No warning for empty clusters",
+      "description": "Empty clusters are silently skipped without warning",
+      "code_snippet": "if n_c <= r: V_approx[mask] = V_c  # Silent skip",
+      "impact": "Low - this is actually correct behavior",
+      "recommendation": "Consider logging for debugging purposes"
+    },
+    {
+      "id": "B1-003",
+      "severity": "MINOR",
+      "module": "B1: method_d_ablation.py",
+      "file": "simulation/method_d_ablation.py",
+      "line": 320,
+      "issue": "Variable shadowing",
+      "description": "for r in cfg['r_values'] shadows the r parameter in comprehension",
+      "code_snippet": "for r in cfg['r_values']:  # shadows r from outer scope",
+      "impact": "Low - Python scoping handles this correctly",
+      "recommendation": "Rename loop variable to r_val for clarity"
+    },
+    {
+      "id": "B1-004",
+      "severity": "MINOR",
+      "module": "B1: method_d_ablation.py",
+      "file": "simulation/method_d_ablation.py",
+      "line": "N/A",
+      "issue": "6 configs failed",
+      "description": "6 configurations failed during full ablation run (0.93% failure rate)",
+      "code_snippet": "failed_results = [r for r in results if 'error' in r]",
+      "impact": "MEDIUM - non-trivial failure rate should be investigated",
+      "recommendation": "Add detailed error logging and exception handling"
+    },
+    {
+      "id": "D1-001",
+      "severity": "MAJOR",
+      "module": "D1: accord_backend.py",
+      "file": "simulation/accord_backend.py",
+      "line": 146,
+      "issue": "Lazy import path error",
+      "description": "_get_all_backends() imports from 'backends.flash_attn' but path is 'backends/flash_attn.py'. Actual working import is 'simulation.backends.flash_attn' or relative '.backends.flash_attn'",
+      "code_snippet": "from backends.flash_attn import FlashAttention2Backend  # Wrong path",
+      "impact": "MEDIUM - lazy loading fails, but direct imports work. BackendFactory remains empty after lazy loading.",
+      "recommendation": "Fix import path: use relative imports or correct absolute path"
+    },
+    {
+      "id": "D1-002",
+      "severity": "MINOR",
+      "module": "D1: accord_backend.py",
+      "file": "simulation/accord_backend.py",
+      "line": 149,
+      "issue": "Silent ImportError catch",
+      "description": "try: _get_all_backends() except ImportError: pass masks import errors",
+      "code_snippet": "try:\n    _get_all_backends()\nexcept ImportError:\n    pass  # Silent fail",
+      "impact": "Low - this prevents crashes but hides real issues",
+      "recommendation": "Add logging.warning when import fails"
+    },
+    {
+      "id": "D1-003",
+      "severity": "MINOR",
+      "module": "D1: flash_attn.py",
+      "file": "simulation/backends/flash_attn.py",
+      "line": 147,
+      "issue": "Output dtype not documented",
+      "description": "attention() returns float16 but ABC doesn't specify dtype",
+      "code_snippet": "return output.astype(np.float16)",
+      "impact": "Low - this is a reasonable default",
+      "recommendation": "Document output dtype expectation in ABC or docstrings"
+    },
+    {
+      "id": "D1-004",
+      "severity": "MINOR",
+      "module": "D1: triton.py",
+      "file": "simulation/backends/triton.py",
+      "line": 210,
+      "issue": "4D indexing assumption",
+      "description": "Q_f[b, h] assumes Q_f is 4D, but shape adjustment makes it 4D [batch, heads, seq, head_dim]",
+      "code_snippet": "Q_block[b, h] @ K_block[b, h].T",
+      "impact": "Low - shape adjustment ensures 4D before this point",
+      "recommendation": "Add assertion to verify shape before indexing"
+    }
+  ],
+  "summary_by_module": {
+    "A1": {
+      "module": "method_d_proof.py + method_d_theory.py",
+      "verdict": "MINOR",
+      "critical": 0,
+      "major": 0,
+      "minor": 3,
+      "math_correctness": "PASS - Eckart-Young bound, inequality direction, per-cluster ≤ global all correct",
+      "reproducibility": "PASS - seeds set, toy test present, 864 configs verified",
+      "config_count": {"claimed": 864, "actual": 864, "status": "PASS"}
+    },
+    "A2": {
+      "module": "anytime_theory.py",
+      "verdict": "MINOR",
+      "critical": 0,
+      "major": 1,
+      "minor": 2,
+      "math_correctness": "PASS with warning - marginal utility monotonicity correct, alpha mismatch issue",
+      "reproducibility": "PASS - seeds set, toy test present, 1800 configs verified",
+      "config_count": {"claimed": 1800, "actual": 1800, "status": "PASS"}
+    },
+    "B1": {
+      "module": "method_d_ablation.py",
+      "verdict": "MINOR",
+      "critical": 0,
+      "major": 0,
+      "minor": 4,
+      "math_correctness": "PASS - SVD reconstruction correct, compression ratio correct",
+      "reproducibility": "PASS - seeds set, toy test present, 648 configs verified",
+      "config_count": {"claimed": 648, "actual": 648, "status": "PASS"},
+      "note": "6 configs failed (0.93% failure rate)"
+    },
+    "C1": {
+      "module": "scripts_review.py",
+      "verdict": "PASS",
+      "critical": 0,
+      "major": 0,
+      "minor": 0,
+      "math_correctness": "N/A - meta-tool for reviewing other scripts",
+      "reproducibility": "PASS - comprehensive static analysis, physical audits",
+      "config_count": {"claimed": "N/A", "actual": "N/A", "status": "PASS"}
+    },
+    "D1": {
+      "module": "accord_backend.py + 4 backends",
+      "verdict": "MINOR",
+      "critical": 0,
+      "major": 1,
+      "minor": 3,
+      "interface_consistency": "PASS - all backends implement required methods",
+      "encode_decode_test": "PASS - all backends pass roundtrip with max_err=0.0",
+      "lazy_import": "FAIL - import path error, but direct imports work"
+    }
+  },
+  "recommendations": {
+    "immediate_fixes": [
+      {
+        "id": "FIX-001",
+        "module": "A2: anytime_theory.py",
+        "description": "Fix alpha parameter inconsistency",
+        "current": "compression_error uses alpha=0.6, evaluate_cascade uses alpha=1.0",
+        "fix": "Use single alpha parameter passed through function calls"
+      },
+      {
+        "id": "FIX-002",
+        "module": "D1: accord_backend.py",
+        "description": "Fix lazy import path",
+        "current": "from backends.flash_attn import ...",
+        "fix": "Use relative imports: from .backends.flash_attn import ..."
+      }
+    ],
+    "follow_up_fixes": [
+      "Investigate 6 failed configs in ablation study",
+      "Document magic numbers (scale=0.5, W_v transformation)",
+      "Add empty cluster warnings with logging",
+      "Consider renaming shadowed variable 'r' to 'r_val'"
+    ]
+  }
+}

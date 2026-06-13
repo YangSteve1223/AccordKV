@@ -1,0 +1,36 @@
+{
+  "bug1_r_equals_kvlen": {
+    "bug": "r_equals_kvlen_not_zero",
+    "err": 0.6568434707698093,
+    "weights_sum": 1.0,
+    "assignments_unique": 23
+  },
+  "bug2_random_kv": {
+    "bug": "random_kv_unfair_comparison",
+    "err_sketch": 0.08802137000270346,
+    "err_drop": 0.13832627419527732,
+    "ratio": 0.6363315322036531,
+    "ISSUE": "k-means++ gives unfair advantage over random sampling"
+  },
+  "bug3_log_weight": {
+    "ok": true
+  },
+  "bug4_convergence": {
+    "bug": "convergence_check_after_assignment",
+    "severity": "minor",
+    "impact": "iterates run to completion anyway"
+  },
+  "bug5_quantize": {
+    "bug": "quantize_scale_uses_combined_max",
+    "k_scale": 9.857171058654785,
+    "v_scale": 1.0757704973220825,
+    "k_err": 0.14149291813373566,
+    "v_err": 0.11969189731075858,
+    "severity": "minor"
+  },
+  "bug6_hierarchical_weights": {
+    "weights_sum": 1.0,
+    "expected": 1.0,
+    "ok": 1.0
+  }
+}
