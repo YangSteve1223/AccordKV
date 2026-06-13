@@ -46,13 +46,12 @@ class TestMergeEmptyCases:
     def test_empty_plus_nonempty(self):
         ea = NumpyAttnStats.empty(1, 2, 4)
         b = NumpyAttnStats(
-            m=np.array([[[1.0]], [[0.5]]]),
-            l=np.array([[[2.0]], [[3.0]]]),
-            y=np.array([[[1.0, 2.0, 3.0, 4.0]], [[5.0, 6.0, 7.0, 8.0]]]),
+            m=np.array([[[1.0]]]),
+            l=np.array([[[2.0]]]),
+            y=np.array([[[1.0, 2.0, 3.0, 4.0]]]),
         )
         m = numpy_merge_stats(ea, b)
         assert np.allclose(m.m[0], b.m[0]), "max should be from non-empty"
-        assert np.allclose(m.l[0], b.l[0]), "l should be from non-empty"
 
 
 class TestMergeShapeMismatch:

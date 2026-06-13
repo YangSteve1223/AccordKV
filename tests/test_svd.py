@@ -21,8 +21,11 @@ class TestSVDCompress:
         assert comp["Vh"].shape == (4, 8, 64)
 
     def test_svd_reconstruction_error(self):
-        V = np.random.randn(128, 64).astype(np.float64)
-        comp = svd_compress(V, rank=32)
+        # Low-rank matrix: rank=32 can capture most variance
+        U = np.random.randn(128, 32).astype(np.float64)
+        V = np.random.randn(32, 64).astype(np.float64)
+        V_true = U @ V  # rank-32 matrix
+        comp = svd_compress(V_true, rank=32)
         rec = svd_decompress(comp)
-        rel_err = np.abs(V - rec).mean() / (np.abs(V).mean() + 1e-10)
-        assert rel_err < 0.1, f"High reconstruction error: {rel_err}"
+        rel_err = np.abs(V_true - rec).mean() / (np.abs(V_true).mean() + 1e-10)
+        assert rel_err < 1e-6, f"High reconstruction error: {rel_err}"
