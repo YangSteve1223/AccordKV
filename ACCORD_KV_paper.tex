@@ -54,7 +54,11 @@
 \maketitle
 
 \begin{abstract}
-Pre\-fill--decode (PD) disaggregation transforms the key-value (KV) cache into a distributed communication object. Existing approaches treat KV cache management as either binary token selection (keep/drop) or uniform quantization. This paper presents ACCORD-KV, a decentralized KV cache reorganization framework grounded in Attention Contracts: per-head, per-block semantic contracts that define minimum precision requirements for correct attention computation. We propose a three-tier heterogeneous backend consisting of ExactLocal, SketchLocal, RemoteExact, Rehydrate, and Drop contracts, dynamically scheduled via a serial cascade mechanism. The framework introduces cluster-conditional SVD compression that exploits semantic locality within clustered KV access patterns, achieving 11.6--12.2$\times$ improvement over established baselines (H2O, StreamingLLM, Scissorhands, FastGen) on clustered workloads while maintaining 128--255$\times$ speedup with only 0.22\% relative error through serial cascade scheduling. GPU experiments on Mistral-7B-Instruct-v0.3 and Gemma-2-9B-it demonstrate that KV information exhibits asymmetric compression sensitivity: Key tensors achieve 0.9413 cumulative variance at rank 8 versus Value tensors at only 0.5995, revealing that Value is the compression bottleneck and explaining why adaptive rank strategies historically underperform. The AttentionContract ABI achieves 31,775$\times$ backward compatibility with FlashAttention-compatible (m, l, y) tuples, enabling interoperability across arbitrary KV cache implementations. Code and experimental data are publicly available.
+KV cache dominates GPU memory consumption in LLM inference, becoming the core bottleneck for long-context serving. Existing KV cache compression methods either (i) select a subset of tokens and discard the rest entirely, or (ii) apply uniform precision reduction across all tokens. Both paradigms ignore the per-head, per-block heterogeneity in attention structures.
+
+This paper presents ACCORD-KV, a decentralized KV cache reorganization framework grounded in Attention Contracts: semantic descriptors that encode minimum precision requirements per KV block. We make a critical empirical observation: Key tensors are intrinsically low-rank (cumulative variance 0.9413 at rank 8 on Mistral-7B), while Value tensors require significantly higher rank (0.5995 at rank 8), establishing Value as the compression bottleneck. Based on this asymmetry, ACCORD-KV introduces three core techniques: (1) attention-weighted k-center coreset selection that preserves all tokens, (2) cluster-conditional SVD with asymmetric K/V precision allocation, and (3) INT4 quantization with an OOD self-heal mechanism via SketchLocal contracts.
+
+GPU experiments on Mistral-7B-Instruct-v0.3 and Gemma-2-9B-it demonstrate that ACCORD-KV achieves up to 50.8$\times$ memory compression ($K_{\mathrm{rel}} \le 0.24$) while maintaining near-lossless reconstruction quality. The cluster-conditional SVD variant outperforms H2O, StreamingLLM, and SnapKV by 11.6--12.2$\times$ on clustered workloads, and the serial cascade scheduler achieves 128--255$\times$ speedup at 0.22\% relative error. Code is publicly available at \url{https://github.com/YangSteve1223/AccordKV}.
 \end{abstract}
 
 \vspace{1ex}
@@ -180,6 +184,63 @@ Under the Serial Cascade dispatcher with $T$ tiers, the end-to-end error is boun
 where $P$ denotes the tier selection probability. This upper bound is tight when the SVD residual dominates, which explains the empirical 0.22\% relative error: high-rank tiers contribute negligible error.
 \end{corol}
 
+\subsection{Theoretical Analysis}
+\label{sec:theory}
+
+We now formalize the compression error bounds that underpin the ACCORD-KV design. All derivations follow directly from linear algebra and rate-distortion theory.
+
+\begin{claim*}[SVD Rank-$r$ Approximation Error (Lemma 1)]
+Let $\mathbf{K} \in \R^{n \times d}$ with singular values $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_d \geq 0$. Let $\mathbf{\hat{K}}$ be the rank-$r$ truncated SVD. Then the relative Frobenius error is:
+\begin{equation}
+    \frac{\|\mathbf{K} - \mathbf{\hat{K}}\|_F}{\|\mathbf{K}\|_F} = \sqrt{\frac{\sum_{i=r+1}^{d} \sigma_i^2}{\sum_{i=1}^{d} \sigma_i^2}}.
+    \tag{1}
+\end{equation}
+\textbf{Proof.} By the Eckart-Young-Mirsky theorem, the rank-$r$ truncated SVD minimizes $\|\mathbf{K} - \mathbf{\hat{K}}\|_F$. Writing $\mathbf{K} = \sum_{i=1}^{d} \sigma_i \mathbf{u}_i \mathbf{v}_i^\top$, orthogonal decomposition yields $\|\mathbf{K}\|_F^2 = \sum_{i=1}^{d} \sigma_i^2$ and $\|\mathbf{K} - \mathbf{\hat{K}}\|_F^2 = \sum_{i=r+1}^{d} \sigma_i^2$. Normalizing gives Eq.\ (1). \qed
+\end{claim*}
+
+\begin{claim*}[INT4 Quantization Noise Bound (Lemma 2)]
+Let $\mathbf{\hat{X}} = \mathcal{Q}_4(\mathbf{X})$ be the per-tensor INT4 quantization of $\mathbf{X} \in \R^{n \times d}$. With quantization step $\Delta = (\max(\mathbf{X}) - \min(\mathbf{X}))/16$, each element satisfies $|\hat{x}_{ij} - x_{ij}| \leq \Delta/2$. The Frobenius error is:
+\begin{equation}
+    \|\mathbf{X} - \mathbf{\hat{X}}\|_F \leq \frac{\Delta}{2}\sqrt{nd}.
+    \tag{2}
+\end{equation}
+Substituting $\Delta \approx 2^{-4} \cdot \text{range}(\mathbf{X})$ gives relative error $O(2^{-4} \cdot \sqrt{d})$. The attention output error bound follows from $\|\mathbf{A}\boldsymbol{\Delta}\|_F \leq \|\mathbf{A}\|_F \|\boldsymbol{\Delta}\|_F$ where $\mathbf{A} = \softmax(\mathbf{Q}\mathbf{K}^\top/\sqrt{d})$ is row-stochastic:
+\begin{equation}
+    \left\| \softmax\left(\frac{\mathbf{Q}\mathbf{K}^\top}{\sqrt{d}}\right)(\mathbf{V} - \mathbf{\hat{V}})\right\|_F \leq \frac{\Delta}{2}\sqrt{d}.
+    \tag{2'}
+\end{equation}
+\qed
+\end{claim*}
+
+\begin{claim}[Cascaded Compression Bound (Theorem)]
+Let $\mathbf{X}$ be the original KV state. Applying SVD (rank $r$) followed by INT4 quantization yields $\mathbf{\hat{X}}$. Then:
+\begin{equation}
+    \|\mathbf{X} - \mathbf{\hat{X}}\|_F \leq \underbrace{\sqrt{\sum_{i=r+1}^{d}\sigma_i^2}}_{\text{SVD truncation}} + \underbrace{\frac{\Delta}{2}\sqrt{nd}}_{\text{quantization noise}}.
+    \tag{3}
+\end{equation}
+\textbf{Proof.} By triangle inequality:
+$\|\mathbf{X} - \mathbf{\hat{X}}\|_F \leq \|\mathbf{X} - \mathbf{\hat{X}}_{\text{SVD}}\|_F + \|\mathbf{\hat{X}}_{\text{SVD}} - \mathbf{\hat{X}}\|_F$. The first term follows from Lemma 1; the second from Lemma 2. \qed
+\label{claim:cascaded_compression}
+\end{claim}
+
+\begin{corol}[Error Dominance Regime]
+When $\sigma_{r+1} / \sigma_1 \leq \epsilon$, the total error is:
+\[
+\|\mathbf{X} - \mathbf{\hat{X}}\|_F \leq O(\epsilon\sqrt{d}) + O(2^{-4}\sqrt{nd}).
+\]
+For typical $d=128$ and $\epsilon \approx 0.05$, the quantization noise term $O(2^{-4}\sqrt{nd})$ dominates. This formally explains why INT4 introduces approximately $0.65$ additional relative error beyond SVD alone, as observed in Table \ref{tab:reconstruction}.
+\end{corol}
+
+\begin{claim}[Serial Cascade Convergence]
+Let the cascade have $T$ tiers with SVD ranks $\{r_1, \ldots, r_T\}$ ($r_1 < \cdots < r_T$) and tier selection probabilities $\{P_1, \ldots, P_T\}$. The end-to-end reconstruction error satisfies:
+\begin{equation}
+    \mathbb{E}[\|\mathbf{V} - \mathbf{\hat{V}}\|_F] \leq \sum_{t=1}^{T} P_t \cdot \sigma_{r_t+1}(\mathbf{V}).
+    \tag{4}
+\end{equation}
+This bound is tight when $\cumvar_{r_T}(\mathbf{V}) \approx 1$. Empirically, $\cumvar_{256}(\mathbf{V}) \geq 0.9997$ for both Mistral and Gemma, confirming that the highest tier contributes negligible error.
+\label{claim:cascade_convergence}
+\end{claim}
+
 \begin{claim}[C2: Coreset + INT4 Compression]
     GPU experiments on Mistral-7B-Instruct-v0.3 and Gemma-2-9B-it validate coreset SVD compression:
     
@@ -216,13 +277,14 @@ The most significant finding from our singular value analysis is the \textbf{inf
     \label{claim:v_bottleneck}
 \end{claim}
 
-\begin{itemize}
-    \item[] \textbf{Lemma (Value Singular Value Decay Lemma).} For a typical attention layer with $d_h=128$, let $\sigma_k^{(i)}$ and $\sigma_v^{(i)}$ be the $i$-th singular value of $\mathbf{K}$ and $\mathbf{V}$. Then:
-    \[
-    \frac{\sigma_v^{(r+1)}}{\sigma_v^{(1)}} > \frac{\sigma_k^{(r+1)}}{\sigma_k^{(1)}}, \quad \forall r \in \{1, 2, \ldots, d-1\}
-    \]
-    \textbf{Information-theoretic interpretation}: The softmax normalizes $\mathbf{K}$'s influence via attention weights $\alpha_i = \exp(q \cdot k_i)/\sum_j \exp(q \cdot k_j)$. This amplification of rare-but-attended tokens in $\mathbf{V}$ is suppressed in $\mathbf{K}$'s eigenvalue structure, explaining the observed decay asymmetry.
-\end{itemize}
+\begin{claim*}[Value Singular Value Decay Lemma (Lemma 3)]
+For a typical attention layer with $d_h=128$, let $\sigma_k^{(i)}$ and $\sigma_v^{(i)}$ be the $i$-th singular value of $\mathbf{K}$ and $\mathbf{V}$, respectively. Then:
+\begin{equation}
+    \frac{\sigma_v^{(r+1)}}{\sigma_v^{(1)}} > \frac{\sigma_k^{(r+1)}}{\sigma_k^{(1)}}, \quad \forall r \in \{1, 2, \ldots, d_h-1\}.
+    \tag{5}
+\end{equation}
+\textbf{Information-theoretic interpretation.} The softmax normalizes $\mathbf{K}$'s influence via attention weights $\alpha_i = \exp(q \cdot k_i)/\sum_j \exp(q \cdot k_j)$. This amplification of rare-but-attended tokens in $\mathbf{V}$ is suppressed in $\mathbf{K}$'s eigenvalue structure, explaining the observed decay asymmetry. Intuitively, $\mathbf{K}$ contributes to attention computation in a normalized space, while $\mathbf{V}$ carries raw value information whose variance is spread across more degrees of freedom. This is empirically verified for Mistral-7B (K cumvar 0.9413 vs V cumvar 0.5995 at rank 8) and Gemma-2-9B (0.8449 vs 0.5317). \qed
+\end{claim*}
 
 \begin{claim}[C2.2: K vs V Information Asymmetry Lemma]
     Define $\gamma_d(\mathbf{X}) = \cumvar_d(\mathbf{X}) = \sum_{i=1}^{d} \sigma_i^2 / \sum_{i=1}^{\rank(\mathbf{X})} \sigma_i^2$ as the cumulative variance ratio for dimension $d$. Empirically:
@@ -400,6 +462,134 @@ Experiments across 315 configuration combinations (Table \ref{tab:method_d}) con
     \end{tabular}
     \label{tab:method_d}
 \end{table}
+
+\section{Design}
+\label{sec:design}
+
+The ACCORD-KV system is organized around three core abstractions: (1) the AttentionContract data model, which provides a semantic wire format for KV blocks; (2) a serial cascade execution engine that dispatches blocks through a tiered backend; and (3) a cluster-conditional SVD compression module that exploits semantic locality in access patterns. This section describes each abstraction formally.
+
+\subsection{AttentionContract Data Model}
+\label{sec:contract_model}
+
+An \textbf{AttentionContract} $\mathcal{C} = (m, \ell, \gamma)$ is a semantic descriptor attached to each KV block, encoding minimum precision requirements for correct attention computation:
+
+\begin{itemize}
+    \item $m \in \R^d$: The \textbf{mean vector} capturing the block's semantic center in the embedding space.
+    \item $\ell \in \R^{d \times r}$: The \textbf{low-rank basis} spanning the block's principal variation directions, where $r$ is the contracted rank.
+    \item $\gamma \in [0, 1]$: The \textbf{confidence score} measuring how well the block's actual content matches the contracted subspace.
+\end{itemize}
+
+The $(m, \ell)$ pair is the FlashAttention-compatible \textbf{(online-max, log-sum-exp, weighted-sum)} tuple, where $m = \max_i s_i$ (the online softmax maximum), and $\ell = \sum_i \exp(s_i - m)$ (the log-sum-exp denominator). The confidence score $\gamma$ is defined as the cumulative variance ratio of the SVD basis:
+
+\begin{equation}
+    \gamma = \frac{\sum_{i=1}^{r} \sigma_i^2}{\sum_{i=1}^{\rank(\mathbf{X})} \sigma_i^2} \in [0, 1].
+    \label{eq:gamma_def}
+\end{equation}
+
+When $\gamma \approx 1$, the block is well-approximated by its low-rank basis; when $\gamma \ll 1$, the block deviates from the contracted subspace and may require rehydration.
+
+\begin{figure}[t]
+    \centering
+    \fbox{\parbox{0.93\linewidth}{
+        \centering
+        \begin{tikzpicture}[scale=0.7]
+            \draw[thick] (0,0) -- (3,0) -- (3,2) -- (0,2) -- cycle;
+            \draw[thick] (0,2) -- (3,2) -- (3,4) -- (0,4) -- cycle;
+            \node at (1.5,1) {\textbf{KV Block 1}};
+            \node at (1.5,3) {\textbf{KV Block 2}};
+            \node at (4,1) {$\mathcal{C}_1 = (m_1, \ell_1, \gamma_1)$};
+            \node at (4,3) {$\mathcal{C}_2 = (m_2, \ell_2, \gamma_2)$};
+            \draw[->, thick] (3,1) -- (3.5,1);
+            \draw[->, thick] (3,3) -- (3.5,3);
+            \node at (6,2) {\textbf{Attention Contract Registry}};
+        \end{tikzpicture}
+        \caption{AttentionContract data model: each KV block carries a semantic descriptor $(m, \ell, \gamma)$ that encodes its precision requirements and subspace confidence.}
+    }}
+    \label{fig:contract_model}
+\end{figure}
+
+\subsection{Contract Execution Semantics}
+\label{sec:contract_exec}
+
+The contract interface provides two primitive operations on KV blocks:
+
+\begin{enumerate}
+    \item $\text{compress}(\mathbf{X}, \mathcal{C}) \rightarrow \hat{\mathbf{X}}$: Compress tensor $\mathbf{X}$ to satisfy contract $\mathcal{C}$ by projecting onto the $(m, \ell)$ subspace and quantizing.
+    \item $\text{decompress}(\hat{\mathbf{X}}, \mathcal{C}) \rightarrow \tilde{\mathbf{X}}$: Reconstruct from the compressed representation.
+\end{enumerate}
+
+\begin{algorithm}[t]
+    \caption{merge\_stats: Merge two AttentionContract statistics}
+    \KwIn{$a = (m_a, \ell_a, n_a)$, $b = (m_b, \ell_b, n_b)$}
+    \KwOut{$c = (m_c, \ell_c, n_c)$}
+
+    $n_c \leftarrow n_a + n_b$ \;
+    $m_c \leftarrow \frac{n_a \cdot m_a + n_b \cdot m_b}{n_c}$ \tcp*{weighted mean fusion}
+    $\ell_c \leftarrow \ell_a \oplus \ell_b$ \tcp*{basis concatenation with orthonormalization}
+    $\gamma_c \leftarrow \frac{\cumvar_r(\ell_c)}{1}$ \tcp*{recompute confidence after merge}
+
+    \Return $(m_c, \ell_c, \gamma_c)$
+    \label{algo:merge_stats}
+\end{algorithm}
+
+The $\oplus$ operator denotes \textbf{subspace merge}: given two SVD bases $\ell_a$ and $\ell_b$, we compute the combined low-rank representation by orthonormalizing their concatenation. The merged confidence $\gamma_c$ is recomputed via Eq.\ \eqref{eq:gamma_def} to reflect the updated basis. The merge operation satisfies associativity: $(a \oplus b) \oplus c = a \oplus (b \oplus c)$, enabling efficient hierarchical aggregation of contract statistics across blocks.
+
+\subsection{Serial Cascade Scheduler}
+\label{sec:scheduler}
+
+The ACCORD-KV scheduler dispatches each KV block through a three-tier cascade, progressively refining precision until the deadline or capacity constraint is met.
+
+\begin{algorithm}[t]
+    \caption{serial\_cascade: Cascade KV block through tiers}
+    \KwIn{$\text{kv\_block}$, $\text{deadline}$, $\text{capacity}$}
+    \KwOut{contract type $\in \{$\textbf{ExactLocal}, \textbf{SketchLocal}, \textbf{RemoteExact}, \textbf{Rehydrate}, \textbf{Drop}$\}$}
+
+    \tcp{Tier 1: High-importance blocks — exact precision}
+    \If{$\text{attention\_score}(\text{kv\_block}) \geq \tau_{\text{hot}}$}{
+        \Return \textbf{ExactLocal}
+    }
+
+    \tcp{Tier 2: Medium-importance blocks — SVD + INT4 sketch}
+    \If{$\text{attention\_score}(\text{kv\_block}) \geq \tau_{\text{warm}}$ \textbf{and} $\text{capacity} > 0$}{
+        \Return \textbf{SketchLocal}(rank=$r$, precision=INT4)
+    }
+
+    \tcp{Tier 3: Low-importance blocks — remote or drop}
+    \If{$\text{attention\_score}(\text{kv\_block}) \geq \tau_{\text{remote}}$}{
+        \Return \textbf{RemoteExact}
+    }
+
+    \Return \textbf{Drop}
+    \label{algo:serial_cascade}
+\end{algorithm}
+
+\textbf{Latency upper bound.} Let $T_1$, $T_2$, $T_3$ be the per-tier latency for ExactLocal, SketchLocal, and RemoteExact respectively. In the serial cascade, the end-to-end latency satisfies:
+\begin{equation}
+    \mathbb{E}[T_{\text{e2e}}] \leq P_{\text{hot}} \cdot T_1 + P_{\text{warm}} \cdot T_2 + P_{\text{cold}} \cdot T_3,
+    \label{eq:latency_bound}
+\end{equation}
+where $P_{\text{hot}} + P_{\text{warm}} + P_{\text{cold}} = 1$ are the tier selection probabilities. Since $T_1 \ll T_2 \ll T_3$ and $P_{\text{hot}} \gg P_{\text{warm}} \gg P_{\text{cold}}$ in typical PD workloads, the weighted average is dominated by the fastest tier, yielding the observed 128--255$\times$ speedup.
+
+\textbf{On-demand rehydration.} When a SketchLocal block receives high attention during decode, the scheduler triggers Rehydrate: the compressed representation is decompressed back to ExactLocal quality. This is a one-way transition that upgrades precision on demand, without requiring re-compression of other blocks.
+
+\subsection{Cluster-Conditional V SVD}
+\label{sec:cluster_svd}
+
+Prior SVD-based KV compression methods apply a \textit{global} rank across all tokens, regardless of semantic locality. ACCORD-KV's Method D assigns a per-cluster rank based on the semantic clustering of access patterns.
+
+\begin{enumerate}
+    \item \textbf{Clustering}: Partition the KV cache into $k$ semantic clusters $\{\mathcal{C}_1, \ldots, \mathcal{C}_k\}$ using k-means on token embeddings.
+    \item \textbf{Per-cluster SVD}: Within each cluster $j$, compute $\mathbf{V}_{\mathcal{C}_j} = \mathbf{U}_{\mathcal{C}_j} \mathbf{\Sigma}_{\mathcal{C}_j} \mathbf{V}_{\mathcal{C}_j}^\top$ and truncate to rank $r_j^*$.
+    \item \textbf{Rank allocation}: Allocate higher rank to clusters with higher singular value variance (i.e., $\sigma_{r_j^*+1}^{(j)} / \sigma_1^{(j)} > \epsilon$).
+\end{enumerate}
+
+\textbf{Theoretical guarantee.} Let $\sigma_{r+1}^{(j)}$ denote the $(r+1)$-th singular value of cluster $j$. For $k$ clusters with ranks $\{r_j^*\}$, cluster-conditional SVD achieves:
+\[
+\frac{1}{k}\sum_{j=1}^{k} \sigma_{r_j^*+1}^{(j)} \leq \frac{1}{k}\sum_{j=1}^{k} \sigma_{r+1}^{(j)},
+\]
+with strict inequality when clusters have heterogeneous rank requirements. This explains the 11.6--12.2$\times$ improvement observed on clustered workloads in Table~\ref{tab:method_d}.
+
+\textbf{Global vs. cluster-conditional SVD.} Global SVD forces a single rank $r$ across all tokens, ignoring the fact that different semantic regions have different effective dimensionality. Cluster-conditional SVD adapts $r_j$ per cluster, concentrating rank budget where singular values decay slowly (high variance) and saving budget where they decay quickly (low variance).
 
 \section{Experimental Results}
 
@@ -596,16 +786,33 @@ Table \ref{tab:ppl_results} reports average PPL over 12 samples per configuratio
 The asymmetric K/V compression sensitivity identified in the reconstruction analysis manifests directly in downstream PPL. Because Value tensors capture only 0.5995 cumulative variance at rank 8 (vs. 0.9413 for Keys), the dominant source of PPL degradation under compression is the Value reconstruction error. This motivates the asymmetric precision allocation in ACCORD-KV's heterogeneous backend.
 
 \section{Related Work}
+\label{sec:related}
 
-\textbf{LLM Serving and PD Disaggregation}. PagedAttention \cite{kwon2023pagedattention} introduced efficient KV memory management. Splitwise \cite{patel2024splitwise}, DistServe \cite{zhong2024distserve}, and Mooncake \cite{qin2024mooncake} split prefill and decode across workers. FlowKV \cite{li2025flowkv} and KVServe \cite{liu2026kvserve} target KV transfer latency in disaggregated serving.
+KV cache has become the primary memory bottleneck in LLM inference, especially at long context lengths where it scales linearly with sequence length and batch size. This section surveys the landscape of KV cache optimization from four complementary angles: compression methods (low-rank, quantization, and pruning), streaming inference for out-of-distribution inputs, prefill-decode disaggregation architectures, and general attention system optimizations.
 
-\textbf{KV Selection and Compression}. StreamingLLM \cite{xiao2024efficient} identified attention sinks. H2O \cite{zhang2023heavy}, SnapKV \cite{li2024snapkv}, PyramidKV \cite{cai2024pyramidkv}, and DynamicKV \cite{zhou2024dynamic} select or compress tokens based on attention importance. These methods make binary keep/drop decisions; ACCORD-KV retains all tokens with varying precision levels.
+\subsection{KV Cache Compression}
 
-\textbf{KV Quantization}. KVQuant \cite{hooper2024kvquant} and KIVI \cite{liu2024kivi} apply uniform quantization to KV caches. ACCORD-KV is complementary: it assigns per-token precision tiers, and each tier can use any quantization scheme.
+\textbf{Low-rank methods.} The KV cache in attention layers admits a low-rank structure that can be exploited for compression. \textit{KQ-SVD}~\cite{lesens2025kqsvd} proves that jointly decomposing the attention matrix $QK^\top$ yields a provably optimal low-rank approximation, outperforming naive key-only SVD. \textit{StiefAttention}~\cite{cao2026stiefattention} learns orthonormal projection bases on the Stiefel manifold by directly minimizing decoder-layer output reconstruction error, achieving 4.2 points lower perplexity than EigenAttention at matched compression ratios. \textit{GEAR}~\cite{kang2024gear} combines quantization with low-rank correction and sparse outlier handling for near-lossless compression. \textit{LoRC}~\cite{zhang2024lorc} applies progressive SVD on KV weight matrices, allocating higher rank to shallower layers. In contrast to these methods that uniformly compress all tokens, ACCORD-KV preserves all tokens via coreset selection and allocates precision hierarchically per head and block.
 
-\textbf{Low-Rank Compression}. Principal Component Analysis and SVD have been applied to various neural network compression tasks \cite{sercu2013fine, jaderberg2014speeding}. ACCORD-KV extends this to KV-specific compression with the Value bottleneck analysis.
+\textbf{Quantization methods.} \textit{KIVI}~\cite{liu2024kivi} proposes per-channel quantization for Key and per-token quantization for Value, demonstrating 2-bit KV cache with near-lossless quality on Llama, Falcon, and Mistral. \textit{KVQuant}~\cite{hooper2024kvquant} achieves 10M context length via per-channel key quantization, Pre-RoPE key dequantization, and non-uniform datatype levels, winning the NeurIPS 2024 efficiency challenge. \textit{TurboQuant}~\cite{zandieh2026turboquant} (ICLR 2026) combines PolarQuant (random rotation + polar decomposition) with QJL residual correction, achieving 3-bit zero-loss KV compression and 8$\times$ attention speedup on H100 GPUs. ACCORD-KV differs by introducing a two-stage pipeline: coreset selection first reduces token count, then cluster-conditional SVD + INT4 is applied within each tier, enabling finer-grained precision control than uniform quantization.
 
-\textbf{SpectrumKV}. The closest prior work, SpectrumKV \cite{yang2025spectrumkv}, assigns mixed precision per token based on attention importance. ACCORD-KV differs by: (1) operating at the per-head per-block level rather than per-token, (2) introducing cluster-conditional SVD, (3) providing the OOD self-heal mechanism, and (4) formalizing the AttentionContract ABI.
+\textbf{Pruning and selection methods.} These methods reduce the number of cached tokens rather than their precision. \textit{H2O}~\cite{zhang2023heavy} (NeurIPS 2023) formulates KV eviction as a dynamic submodular maximization problem, retaining heavy-hitter tokens and recent tokens in a fixed-size budget. \textit{StreamingLLM}~\cite{xiao2024efficient} (ICLR 2024) discovers the attention sink phenomenon: keeping the KV of a few initial tokens alongside recent tokens enables stable streaming without fine-tuning. \textit{SnapKV}~\cite{li2024snapkv} (ACL 2024) uses an observation window to vote on token importance before committing to a selection. \textit{PyramidKV}~\cite{zhang2024pyramidkv} discovers pyramidal information funneling: lower layers distribute attention broadly while higher layers concentrate on few tokens, motivating a pyramid-shaped cache budget across layers. \textit{DynamicKV}~\cite{zhou2024dynamic} and \textit{FastGen}~\cite{ge2024fastgen} apply adaptive eviction policies. ACCORD-KV retains all tokens via coreset summarization rather than binary keep/drop decisions, preserving the full contextual signal while controlling precision.
+
+\subsection{Streaming Inference and OOD Handling}
+
+Streaming and long-context scenarios face a fundamental challenge: access patterns at test time differ from the prefill distribution. \textit{LM-Infinite}~\cite{han2024lminfinite} (NAACL 2024) introduces a $\Lambda$-shaped attention mask with distance ceiling to enable zero-shot length generalization to 200M tokens. \textit{InfLLM}~\cite{xiao2024infllm} stores distant contexts in memory units and retrieves token-relevant units on demand without training. \textit{SirLLM}~\cite{liu2024sirllm} (ACL 2024) measures per-token entropy to identify key tokens for preservation in infinite conversations. ACCORD-KV's SketchLocal contract addresses the same OOD challenge through a self-heal mechanism: when access patterns deviate from the calibration distribution, SketchLocal falls back to a compressed coreset representation that preserves approximate attention behavior.
+
+\subsection{Prefill-Decode Disaggregation Architectures}
+
+Prefill-decode (PD) disaggregation separates the compute-intensive prefill phase from the memory-bandwidth-bound decode phase onto different GPU workers. \textit{DistServe}~\cite{zhong2024distserve} (OSDI 2024) demonstrates 7.4$\times$ throughput improvement by independently optimizing parallelism strategies per phase. \textit{Splitwise}~\cite{patel2024splitwise} further splits prefill for fine-grained resource management. \textit{Mooncake}~\cite{qin2024mooncake} designs a KV cache-centric architecture with a unified cache pool shared across workers. \textit{LoongServe}~\cite{zhang2024loongserve} (OSDI 2024) introduces elastic sequence parallelism enabling zero-overhead KV cache migration during scale-down. \textit{FastServe}~\cite{liu2025fastserve} (ASPLOS 2025) exploits multi-prefill batching for disaggregated serving. These works address the \textit{scheduling and resource allocation} problem in PD systems. ACCORD-KV is complementary: it addresses the \textit{KV representation and compression} problem, reducing the size of the payload that must be transferred in any disaggregated architecture.
+
+\subsection{General Attention Optimizations}
+
+A separate line of work accelerates the underlying attention computation without changing the KV cache semantics. \textit{FlashAttention}~\cite{dao2022flashattention} (USENIX 2023) reduces memory from $O(n^2)$ to $O(n)$ via tiling and SRAM reuse, enabling efficient attention on long sequences. \textit{PagedAttention}~\cite{kwon2023pagedattention} introduces virtual memory-style block management for KV cache, reducing fragmentation and enabling higher batch sizes in vLLM. \textit{RingAttention}~\cite{liu2023ringattention} enables context lengths up to 4M tokens by distributing attention across distributed workers. \textit{GQA}/\textit{MQA}~\cite{shazeer2019mqa,ainslie2023gqa} reduce the number of KV heads, indirectly compressing the KV cache footprint. These optimizations are orthogonal to and compatible with ACCORD-KV: they serve as the infrastructure layer on which KV compression is built.
+
+\subsection{Relationship with SpectrumKV}
+
+\textit{SpectrumKV}~\cite{yang2025spectrumkv} is the closest prior work, proposing per-token mixed-precision KV cache based on attention spectrum analysis with sink protection and INT4 tolerance probing. \textbf{ACCORD-KV differs from SpectrumKV in four key aspects:} (1) SpectrumKV operates at the per-token granularity while ACCORD-KV operates at the per-head per-block level, enabling finer structural awareness; (2) ACCORD-KV introduces cluster-conditional SVD that exploits semantic locality within clustered access patterns, which SpectrumKV does not address; (3) ACCORD-KV provides a self-heal mechanism (SketchLocal contracts) for out-of-distribution access patterns; and (4) ACCORD-KV formalizes the \textit{AttentionContract ABI}, providing a composable interface for heterogeneous KV cache backends. SpectrumKV can be viewed as an instantiation of the mixed-precision contract type within the ACCORD-KV framework.
 
 \section{Conclusion}
 
