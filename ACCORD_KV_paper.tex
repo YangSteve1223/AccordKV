@@ -655,33 +655,15 @@ Table \ref{tab:memory} quantifies the memory savings from INT4 quantization comb
 
 \begin{figure}[t]
     \centering
-    \textbf{[Figure: Relative reconstruction error vs. rank for K and V tensors (INT4). Placeholder — Mistral K/V and Gemma K/V at ranks 4/16/64/128/256. V consistently higher error than K at all ranks.]}
-    \fbox{\parbox{0.88\textwidth}{\centering
-        \begin{tabular}{l|ccccc}
-        \textbf{Rank} & 4 & 16 & 64 & 128 & 256 \\ \hline
-        Mistral K & 0.9001 & 0.8878 & 0.8765 & 0.8749 & 0.8749 \\
-        Mistral V & 0.8978 & 0.8659 & 0.8147 & 0.7957 & 0.7957 \\
-        Gemma K   & 0.8959 & 0.8784 & 0.8547 & 0.8440 & 0.8390 \\
-        Gemma V   & 0.9369 & 0.9077 & 0.8551 & 0.8264 & 0.8105 \\
-        \end{tabular}
-    }}
+    \includegraphics[width=0.88\textwidth]{paper/figures/fig_error_rank}
     \caption{Relative reconstruction error vs. rank for K and V tensors (INT4). Note that V consistently shows higher error than K at all ranks, confirming the Value bottleneck.}
     \label{fig:error_rank}
 \end{figure}
 
 \begin{figure}[t]
     \centering
-    \textbf{[Figure: Singular value cumulative variance analysis. K achieves higher cumvar than V at low ranks.]}
-    \fbox{\parbox{0.88\textwidth}{\centering
-        \begin{tabular}{l|ccc}
-        \textbf{Rank} & 8 & 32 & 64 \\ \hline
-        Mistral K & 0.9413 & 0.9831 & 0.9954 \\
-        Mistral V & 0.5995 & 0.8032 & 0.9178 \\
-        Gemma K   & 0.8449 & 0.9236 & 0.9597 \\
-        Gemma V   & 0.5317 & 0.7173 & 0.8325 \\
-        \end{tabular}
-    }}
-    \caption{Singular value cumulative variance analysis. K achieves significantly higher cumvar at low ranks than V, revealing the compression asymmetry. At rank 8, Mistral K captures 0.9413 vs V at 0.5995.}
+    \includegraphics[width=0.88\textwidth]{paper/figures/fig_cumvar_comparison}
+    \caption{Cumulative variance analysis. K achieves significantly higher cumvar at low ranks than V, revealing the compression asymmetry. At rank 8, Mistral K captures 0.9413 vs V at 0.5995, a gap of 0.342 that quantifies the Value bottleneck.}
     \label{fig:singular_values}
 \end{figure}
 
@@ -713,15 +695,15 @@ Table \ref{tab:memory} quantifies the memory savings from INT4 quantization comb
 
 \begin{figure}[t]
     \centering
-    \textbf{[Figure: Method D vs baselines bar chart. Placeholder — data: ACCORD-KV Method D achieves 11.6--12.2× improvement over H2O/StreamingLLM/Scissorhands/FastGen on clustered data.]}
+    \includegraphics[width=0.8\textwidth]{paper/figures/fig_method_d_comparison}
     \caption{Method D vs. baselines on clustered data. ACCORD-KV Method D achieves 11.6--12.2$\times$ improvement over established selection-based baselines.}
     \label{fig:method_d_baselines}
 \end{figure}
 
 \begin{figure}[t]
     \centering
-    \textbf{[Figure: K vs V cumulative variance chart. Placeholder — K: 0.9413/0.9831/0.9954 at rank 8/32/64; V: 0.5995/0.8032/0.9178 at rank 8/32/64. Gap of 0.34 at rank 8 quantifies Value bottleneck.]}
-    \caption{Key vs. Value information asymmetry analysis.}
+    \includegraphics[width=0.75\textwidth]{paper/figures/fig_cumvar_comparison}
+    \caption{Key vs. Value information asymmetry analysis. K captures substantially more variance at low ranks than V across both Mistral-7B and Gemma-2-9B.}
     \label{fig:k_v_asymmetry}
 \end{figure}
 
@@ -813,6 +795,24 @@ A separate line of work accelerates the underlying attention computation without
 \subsection{Relationship with SpectrumKV}
 
 \textit{SpectrumKV}~\cite{yang2025spectrumkv} is the closest prior work, proposing per-token mixed-precision KV cache based on attention spectrum analysis with sink protection and INT4 tolerance probing. \textbf{ACCORD-KV differs from SpectrumKV in four key aspects:} (1) SpectrumKV operates at the per-token granularity while ACCORD-KV operates at the per-head per-block level, enabling finer structural awareness; (2) ACCORD-KV introduces cluster-conditional SVD that exploits semantic locality within clustered access patterns, which SpectrumKV does not address; (3) ACCORD-KV provides a self-heal mechanism (SketchLocal contracts) for out-of-distribution access patterns; and (4) ACCORD-KV formalizes the \textit{AttentionContract ABI}, providing a composable interface for heterogeneous KV cache backends. SpectrumKV can be viewed as an instantiation of the mixed-precision contract type within the ACCORD-KV framework.
+
+\FloatBarrier
+\section{Appendix: Extended Evaluation}
+\label{sec:appendix}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.95\textwidth]{paper/figures/appendix_pareto_frontier}
+    \caption{Pareto frontier analysis across four attention distributions: clustered, random, skewed, and uniform. ACCORD-KV consistently achieves the best trade-off between memory usage and attention error, marked by the orange star.}
+    \label{fig:appendix_pareto}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.95\textwidth]{paper/figures/appendix_method_d_heatmap}
+    \caption{Method D ablation: attention reconstruction error (normalised) across clustering algorithms (KMeans, GMM, Agglomerative, Birch) and number of clusters $k \in \{2,4,8,16,32\}$ at fixed rank=8. Darker cells indicate higher error. The boxed region highlights where clustering provides the largest advantage.}
+    \label{fig:appendix_heatmap}
+\end{figure}
 
 \section{Conclusion}
 
