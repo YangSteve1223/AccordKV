@@ -53,18 +53,16 @@
 ---
 
 ## 常见坑（GPU 实验相关）
-
-1. **KV 截断崩溃**：只提前 256 tokens → 后续全零 → PPL≈12256。修复：全序列提取。
-2. **Mistral 必须 eager**：SDPA 不存旋转后 KV；Gemma 交替注意力同理 `attn_implementation="eager"`。
-3. **Tensor bool判断**：`if attn_self._cv is not None`；禁止 `kw.get('x') or tensor`。
-4. **Double RoPE on k**：k_proj 已旋转；补丁只用于 q。
-5. **Causal mask**：pad 到 seq_full；`.masked_fill(~causal, -float('inf'))` 传给 SDPA。
-6. **RoPE 路径**：inv_freq shape[0]=rotary_dim/2，Mistral θ=10000/hd=128/rotary_dim=64；`sys.path.insert(0, "/root/accord-kv/gpu")`；cos/sin 返回 3D，需 `unsqueeze(1)`。
-7. **MistralAttention 签名**：forward(self, hidden_states, position_embeddings, ...)；hidden_states 是**位置参数**非关键字。
-8. **use_cache=False**：所有 `model(input_ids=ids)` 必须加；否则 HuggingFace 缓存干扰 KV 注入。
-9. **修复后必须重启**：kill 旧进程 + 上传 + 重启（debug 两小时发现旧进程在跑）；ps aux | grep 确认无残留。
-10. **禁止删模型**：改 code 必须重启进程，旧缓存残留。
-11. **GPU PPL 实验已放弃**（2026-06-13）：hook 在 pre-RoPE 捕获 K 导致 attention 崩溃；FP16 base comp≈15376（应为 1.33）；详情见 `recent_memory/decision/ppl_v8_experiment_abandoned.md`。
+1. **KV 截断崩溃**：全序列提取（而非只取256 tokens）
+2. **Mistral 必须 eager**：`attn_implementation="eager"`；Gemma 同理
+3. **Tensor bool判断**：`if attn_self._cv is not None`，禁止 `kw.get('x') or tensor`
+4. **Double RoPE on k**：k_proj 已旋转；补丁只用于 q
+5. **Causal mask**：`pad 到 seq_full` + `.masked_fill(~causal, -float('inf'))` 传给 SDPA
+6. **RoPE**：inv_freq shape[0]=rotary_dim/2，cos/sin 返回 3D 需 `unsqueeze(1)`；Mistral θ=10000/hd=128/rotary_dim=64
+7. **MistralAttention 签名**：`forward(self, hidden_states, position_embeddings, ...)`；hidden_states 是位置参数非关键字
+8. **use_cache=False**：所有 `model(input_ids=ids)` 必须加
+9. **修复后必须重启**：kill 旧进程 + ps aux 确认无残留
+10. **GPU PPL 已放弃**（2026-06-13 11:21）：hook 捕获 pre-RoPE K 导致 attention 崩溃；详情见 `recent_memory/decision/ppl_v8_experiment_abandoned.md`
 
 ---
 
@@ -75,23 +73,16 @@
 
 ---
 
-## GitHub 同步（2026-06-13）
+## GitHub 同步
 - **Token**：见 SECRET.md；**直接 push**，不生成手动操作指南
-- **993ab4a**（12:28 UTC）：README 完整版、.gitignore、paper/、core/（5个）、docs/（审核报告/可行性报告/文件索引）、gpu/、results/、学习指南/
-- **4b18307**（12:29 UTC）：MEMORY.md 同步
-- 项目文件空间已整理：`/paper/` `/docs/` `/GPU_exp/` `/simulation/` `/results/` `/gpu_results/` `/学习指南/` `/用户上传/`
+- **6e606e1**（05:42 UTC）：ACCORD_KV_paper.tex + MEMORY.md + docs/code_review/代码审核报告.md
+- **66a7989**（05:47 UTC）：学习指南扩充（第7章基线对比+SerialCascade伪代码+7条术语）
+- **993ab4a/4b18307**（12:28 UTC，早前）：README/core/docs/gpu/results/学习指南/
 
 ## 自主执行模式（2026-06-13）
 - **规则**：派 sub-agent 并行讨论→汇总→直接执行→干完通知，无需逐次确认
-- 本次：7 个 agent（论文改进/SpectrumKV协作/代码质量/理论proof/可视化/写作/学习指南），结果待汇总后执行 top 8
 - ⚠️ "不是让你做"时立即停止
 
-## 2026-06-13 GitHub 同步与更新
-- 完成项目空间 vs GitHub 全面对比
-- 同步了 Python 包结构（pyproject.toml, accordkv/, tests/）
-- 更新了 README + CONTRIBUTING + ARCHITECTURE
-- 生成了 5 张论文图表（fig_cumvar, fig_error_rank, fig_method_d, pareto, heatmap）
-- 重写了 Related Work + Abstract
-- 补充了 System Design 章节 + Theory Proof
-- 扩充了学习指南（基线对比章节 + Serial Cascade 伪代码）
-- 同步了代码审核报告 → docs/code_review/代码审核报告.md
+## 2026-06-13 上午场 Top 8 任务（并行执行中）
+1. Python 包结构(pyproject.toml, accordkv/, tests/) | 2. CPU Demo 脚本 | 3. README+CONTRIBUTING+ARCHITECTURE | 4. 论文5张图表(fig_cumvar/fig_error_rank/fig_method_d/appendix_pareto/appendix_heatmap) | 5. Related Work重写+Abstract精修 | 6. System Design章节+Theory Proof(Lemma1-2+Theorem) | **7. 学习指南扩充** ✅ | **8. GitHub同步** ✅
+> ⚠️ 任务1-6仍在执行，commit号待补录；失败则下次会话重新派发。
