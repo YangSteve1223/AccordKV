@@ -44,14 +44,16 @@ class TestMergeEmptyCases:
         assert m.l[0, 0, 0] == 0.0, "l should be 0, not NaN"
 
     def test_empty_plus_nonempty(self):
+        # empty: H=1, Ql=2, D=4; nonempty: H=1, Ql=2, D=4 (same shapes)
         ea = NumpyAttnStats.empty(1, 2, 4)
         b = NumpyAttnStats(
-            m=np.array([[[1.0]]]),
-            l=np.array([[[2.0]]]),
-            y=np.array([[[1.0, 2.0, 3.0, 4.0]]]),
+            m=np.array([[[1.0], [0.5]]]),  # [1, 2, 1]
+            l=np.array([[[2.0], [3.0]]]),  # [1, 2, 1]
+            y=np.array([[[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0]]]),  # [1, 2, 4]
         )
         m = numpy_merge_stats(ea, b)
-        assert np.allclose(m.m[0], b.m[0]), "max should be from non-empty"
+        # empty row should propagate from non-empty b
+        assert np.allclose(m.m, b.m), "m should be from non-empty"
 
 
 class TestMergeShapeMismatch:
