@@ -67,7 +67,7 @@
 ---
 
 ## GPU 服务器
-- **SSH**：connect.westc.seetacloud.com:**26289**；**密码**：6M3Bsb5guCSD；**Python**：/root/miniconda3/bin/python
+- **Python**：/root/miniconda3/bin/python
 - **GPU**：RTX 4080 SUPER 32GB；模型 Mistral ✅ / Gemma ✅ 已缓存
 - **TeXLive**：GPU 有 xelatex；编译：`cd /root/accord-kv && bibtex + xelatex × 2`
 
